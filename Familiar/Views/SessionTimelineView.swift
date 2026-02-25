@@ -78,7 +78,7 @@ struct SessionTimelineView: View {
             }
         }
         .frame(minWidth: 500, minHeight: 400)
-        .background(FamiliarApp.canvasBackground)
+        .background(TinkerApp.canvasBackground)
     }
 }
 
@@ -106,7 +106,7 @@ private struct TimelineRow: View {
                 // Timeline track
                 VStack(spacing: 0) {
                     Circle()
-                        .fill(FamiliarApp.accent)
+                        .fill(TinkerApp.accent)
                         .frame(width: 10, height: 10)
                     Rectangle()
                         .fill(Color.primary.opacity(0.1))

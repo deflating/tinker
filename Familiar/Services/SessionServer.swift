@@ -9,7 +9,7 @@ final class SessionServer {
 
     static let shared = SessionServer()
 
-    private let logger = Logger(subsystem: "app.familiar", category: "SessionServer")
+    private let logger = Logger(subsystem: "app.tinker", category: "SessionServer")
     private var listener: NWListener?
     private var connections: [UUID: ClientConnection] = [:]
     private let port: UInt16
@@ -40,7 +40,7 @@ final class SessionServer {
         }
 
         // Bonjour advertisement
-        listener?.service = NWListener.Service(name: "Familiar", type: "_familiar._tcp")
+        listener?.service = NWListener.Service(name: "Tinker", type: "_tinker._tcp")
 
         listener?.stateUpdateHandler = { [weak self] state in
             Task { @MainActor in

@@ -8,7 +8,7 @@ import UserNotifications
 @MainActor
 class ChatViewModel {
 
-    private let logger = Logger(subsystem: "app.familiar", category: "Chat")
+    private let logger = Logger(subsystem: "app.tinker", category: "Chat")
     private(set) var currentSessionId: String?
     private var currentMessageId: UUID?
 
@@ -17,7 +17,7 @@ class ChatViewModel {
     private static let workingDirectoryKey = "lastWorkingDirectory"
     private static let storageDirectory: URL = {
         let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        return appSupport.appendingPathComponent("Familiar", isDirectory: true)
+        return appSupport.appendingPathComponent("Tinker", isDirectory: true)
     }()
     private static let sessionsFile: URL = storageDirectory.appendingPathComponent("sessions.json")
     private static let messagesDirectory: URL = storageDirectory.appendingPathComponent("messages", isDirectory: true)
@@ -26,7 +26,6 @@ class ChatViewModel {
     private static let persistableRoles: Set<MessageRole> = [.user, .assistant, .toolUse, .toolResult, .toolError, .thinking, .system]
 
     let ragService = RAGService()
-    let memoryDaemon = MemoryDaemon.shared
     let gitService = GitService()
     var messages: [ChatMessage] = []
     var error: Error?
@@ -48,10 +47,6 @@ class ChatViewModel {
 
     // Git — delegated to GitService
     var gitBranch: String? { gitService.branch }
-
-    // Seed manager for context extraction
-    let seedManager = SeedManager()
-    var seedsLoaded: Bool { seedManager.contents.values.contains { !$0.isEmpty } }
 
     // Lean transcript logger
     private let transcriptLogger = TranscriptLogger()
@@ -117,11 +112,6 @@ class ChatViewModel {
                 model: self.selectedModel,
                 workingDirectory: self.workingDirectory
             )
-            // Wire up memory daemon for idle-based session note generation
-            let transcriptPath = FileManager.default.homeDirectoryForCurrentUser
-                .appendingPathComponent(".familiar/transcripts/\(sessionId).md").path
-            self.memoryDaemon.activeSessionId = sessionId
-            self.memoryDaemon.activeTranscriptPath = transcriptPath
             if var session = self.currentSession,
                let idx = self.sessions.firstIndex(where: { $0.id == session.id }) {
                 session.cliSessionId = sessionId
@@ -295,7 +285,6 @@ class ChatViewModel {
         messages.append(userMsg)
         SessionServer.shared.broadcastMessage(userMsg)
         transcriptLogger.logUserMessage(trimmed)
-        memoryDaemon.onHumanMessage(trimmed)
         error = nil
 
         // Update session metadata
@@ -322,16 +311,12 @@ class ChatViewModel {
         let ragContext = ragService.retrieve(query: trimmed)
         let augmentedPrompt = ragContext.isEmpty ? trimmed : ragContext + "\n\n" + trimmed
 
-        // Build seed context for injection into system prompt
-        let seedContext = buildSeedContext()
-
         commandRunner.run(
             prompt: augmentedPrompt,
             sessionId: currentSessionId,
             model: selectedModel,
             messageId: assistantId,
-            permissionMode: selectedPermissionMode == "default" ? nil : selectedPermissionMode,
-            contextInjection: seedContext
+            permissionMode: selectedPermissionMode == "default" ? nil : selectedPermissionMode
         )
 
         SessionServer.shared.broadcastState(isLoading: true, runState: runState.displayLabel)
@@ -416,24 +401,6 @@ class ChatViewModel {
         Task { await gitService.refresh(in: workingDirectory) }
     }
 
-    /// Builds combined seed file content for system prompt injection.
-    /// Returns nil if no seed files have content.
-    private func buildSeedContext() -> String? {
-        seedManager.loadAll()
-        // Only inject stable identity seeds. Dynamic memory seeds (now, episodic, semantic)
-        // are read actively via CLAUDE.md READ instructions.
-        let injectableSeeds: [SeedManager.SeedFile] = [.user, .agent]
-        var parts: [String] = []
-        for seed in injectableSeeds {
-            let content = seedManager.contents[seed] ?? ""
-            if !content.isEmpty {
-                parts.append("# \(seed.displayName) Seed\n\n\(content)")
-            }
-        }
-        guard !parts.isEmpty else { return nil }
-        return parts.joined(separator: "\n\n---\n\n")
-    }
-
     // MARK: - Worktree Support
 
     func newWorktreeSession() {
@@ -511,8 +478,6 @@ class ChatViewModel {
                 currentSession = session
                 saveSessions()
 
-                // Feed completed assistant message to memory daemon
-                memoryDaemon.onAssistantMessage(content)
             }
         }
     }
@@ -592,7 +557,7 @@ class ChatViewModel {
         guard !NSApplication.shared.isActive else { return }
         let center = UNUserNotificationCenter.current()
         let notifContent = UNMutableNotificationContent()
-        notifContent.title = "Familiar"
+        notifContent.title = "Tinker"
         notifContent.body = String(content.prefix(100))
         notifContent.sound = .default
         let request = UNNotificationRequest(identifier: UUID().uuidString, content: notifContent, trigger: nil)

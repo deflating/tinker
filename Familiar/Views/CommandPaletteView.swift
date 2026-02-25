@@ -150,7 +150,7 @@ struct CommandPaletteView: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(index == selectedIndex ? FamiliarApp.accent : Color.clear)
+            .background(index == selectedIndex ? TinkerApp.accent : Color.clear)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -163,7 +163,7 @@ struct CommandPaletteView: View {
             HStack(spacing: 10) {
                 Image(systemName: preset.icon)
                     .font(.system(size: 13))
-                    .foregroundStyle(FamiliarApp.accent)
+                    .foregroundStyle(TinkerApp.accent)
                     .frame(width: 20)
                 Text(preset.name)
                     .font(.body)

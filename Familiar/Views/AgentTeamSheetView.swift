@@ -24,7 +24,7 @@ struct AgentTeamSheetView: View {
                 agentDetail
             }
         }
-        .background(FamiliarApp.canvasBackground)
+        .background(TinkerApp.canvasBackground)
     }
 
     // MARK: - Header
@@ -33,7 +33,7 @@ struct AgentTeamSheetView: View {
         HStack(spacing: 10) {
             Image(systemName: "diamond.fill")
                 .font(.system(size: 14))
-                .foregroundStyle(FamiliarApp.agentPurple)
+                .foregroundStyle(TinkerApp.agentPurple)
 
             if let team = watcher.activeTeam {
                 Text(team.name)
@@ -103,7 +103,7 @@ struct AgentTeamSheetView: View {
 
             Spacer()
         }
-        .background(FamiliarApp.surfaceBackground)
+        .background(TinkerApp.surfaceBackground)
     }
 
     private func agentListRow(
@@ -145,7 +145,7 @@ struct AgentTeamSheetView: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(isSelected ? FamiliarApp.agentPurple.opacity(0.1) : .clear)
+            .background(isSelected ? TinkerApp.agentPurple.opacity(0.1) : .clear)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -215,7 +215,7 @@ struct AgentTeamSheetView: View {
                     Button(action: sendMessage) {
                         Image(systemName: "arrow.up.circle.fill")
                             .font(.system(size: 20))
-                            .foregroundStyle(FamiliarApp.agentPurple)
+                            .foregroundStyle(TinkerApp.agentPurple)
                     }
                     .buttonStyle(.plain)
                 }
@@ -311,7 +311,7 @@ struct AgentTeamSheetView: View {
         case "green": return .green
         case "red": return .red
         case "orange": return .orange
-        case "purple": return FamiliarApp.agentPurple
+        case "purple": return TinkerApp.agentPurple
         case "yellow": return .yellow
         case "pink": return .pink
         case "cyan", "teal": return .teal

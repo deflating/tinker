@@ -7,7 +7,7 @@ import os.log
 @MainActor
 final class TranscriptLogger {
 
-    private let logger = Logger(subsystem: "app.familiar", category: "TranscriptLogger")
+    private let logger = Logger(subsystem: "app.tinker", category: "TranscriptLogger")
 
     private static let transcriptsDirectory: URL = {
         let home = FileManager.default.homeDirectoryForCurrentUser

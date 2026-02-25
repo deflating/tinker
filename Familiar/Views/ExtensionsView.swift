@@ -79,8 +79,8 @@ struct ExtensionsView: View {
                 }
             }
         }
-        .background(FamiliarApp.canvasBackground)
-        .tint(FamiliarApp.accent)
+        .background(TinkerApp.canvasBackground)
+        .tint(TinkerApp.accent)
         .sheet(isPresented: $showAddCustom) {
             AddCustomExtensionSheet(manager: manager)
         }
@@ -273,7 +273,7 @@ private struct CatalogEntryRow: View {
         HStack(spacing: 10) {
             Image(systemName: entry.icon)
                 .font(.system(size: 16))
-                .foregroundStyle(FamiliarApp.accent)
+                .foregroundStyle(TinkerApp.accent)
                 .frame(width: 28, height: 28)
 
             VStack(alignment: .leading, spacing: 1) {
@@ -328,7 +328,7 @@ private struct InstallExtensionSheet: View {
             HStack(spacing: 10) {
                 Image(systemName: entry.icon)
                     .font(.system(size: 24))
-                    .foregroundStyle(FamiliarApp.accent)
+                    .foregroundStyle(TinkerApp.accent)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Install \(entry.name)")
                         .font(.title3.weight(.semibold))

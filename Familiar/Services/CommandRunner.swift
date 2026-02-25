@@ -9,7 +9,7 @@ import os.log
 @MainActor
 final class CommandRunner {
 
-    private let logger = Logger(subsystem: "app.familiar", category: "CommandRunner")
+    private let logger = Logger(subsystem: "app.tinker", category: "CommandRunner")
 
     // State
     private(set) var runState: CommandRunState = .idle
@@ -66,7 +66,7 @@ var onResultReceived: ((ResultMessage) -> Void)?
     // MARK: - Process Lifecycle
 
     /// Spawns the persistent claude process if not already running.
-    private func ensureProcessRunning(model: String, permissionMode: String?, contextInjection: String?) {
+    private func ensureProcessRunning(model: String, permissionMode: String?) {
         guard !isProcessRunning else { return }
 
         let claudePath = findClaudePath()
@@ -90,21 +90,12 @@ var onResultReceived: ((ResultMessage) -> Void)?
             args.append(contentsOf: ["--permission-mode", permissionMode])
         }
 
-        let customPrompt = UserDefaults.standard.string(forKey: "customSystemPrompt") ?? ""
-        let appendPrompt = UserDefaults.standard.string(forKey: "appendSystemPrompt") ?? ""
-        let agentPrompt = UserDefaults.standard.string(forKey: "agentProfileSystemPrompt") ?? ""
-        let userPrompt = UserDefaults.standard.string(forKey: "userProfileSystemPrompt") ?? ""
-        if !customPrompt.isEmpty {
-            args.append(contentsOf: ["--system-prompt", customPrompt])
-        }
-        var appendParts: [String] = []
-        if !appendPrompt.isEmpty { appendParts.append(appendPrompt) }
-        if !agentPrompt.isEmpty { appendParts.append(agentPrompt) }
-        if !userPrompt.isEmpty { appendParts.append(userPrompt) }
-        if let injection = contextInjection { appendParts.append(injection) }
-        let fullAppend = appendParts.joined(separator: "\n\n")
-        if !fullAppend.isEmpty {
-            args.append(contentsOf: ["--append-system-prompt", fullAppend])
+        let systemPromptMode = UserDefaults.standard.string(forKey: "systemPromptMode") ?? "off"
+        let customSystemPrompt = UserDefaults.standard.string(forKey: "customSystemPrompt") ?? ""
+        if systemPromptMode == "override" && !customSystemPrompt.isEmpty {
+            args.append(contentsOf: ["--system-prompt", customSystemPrompt])
+        } else if systemPromptMode == "append" && !customSystemPrompt.isEmpty {
+            args.append(contentsOf: ["--append-system-prompt", customSystemPrompt])
         }
 
         // Resume existing session if we have one
@@ -226,7 +217,7 @@ var onResultReceived: ((ResultMessage) -> Void)?
 
     // MARK: - Execution
 
-    func run(prompt: String, sessionId: String?, model: String, messageId: UUID, permissionMode: String? = nil, contextInjection: String? = nil) {
+    func run(prompt: String, sessionId: String?, model: String, messageId: UUID, permissionMode: String? = nil) {
         guard !runState.isActive else {
             logger.warning("Attempted to run while already active")
             return
@@ -251,7 +242,7 @@ var onResultReceived: ((ResultMessage) -> Void)?
         hadInterruptSinceLastText = false
 
         // Ensure persistent process is running
-        ensureProcessRunning(model: model, permissionMode: permissionMode, contextInjection: contextInjection)
+        ensureProcessRunning(model: model, permissionMode: permissionMode)
 
         // Send the user message as a JSON line to stdin
         let userMessage: [String: Any] = [

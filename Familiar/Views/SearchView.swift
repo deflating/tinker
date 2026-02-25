@@ -270,7 +270,7 @@ struct SearchView: View {
                 }
             }
         }
-        .background(FamiliarApp.canvasBackground)
+        .background(TinkerApp.canvasBackground)
         .onAppear { isSearchFocused = true }
     }
 }
@@ -418,7 +418,7 @@ private struct SearchResultRow: View {
         // Bold the search term matches
         if let attrRange = attributed.range(of: searchText, options: .caseInsensitive) {
             attributed[attrRange].font = .callout.bold()
-            attributed[attrRange].foregroundColor = FamiliarApp.accent
+            attributed[attrRange].foregroundColor = TinkerApp.accent
         }
         return attributed
     }

@@ -13,7 +13,7 @@ struct SpotlightOverlay: View {
             HStack(spacing: 12) {
                 Image(systemName: "sparkle")
                     .font(.system(size: 20, weight: .medium))
-                    .foregroundStyle(FamiliarApp.accent)
+                    .foregroundStyle(TinkerApp.accent)
 
                 TextField("Ask Familiar anything…", text: $text)
                     .font(.system(size: 20, weight: .light))

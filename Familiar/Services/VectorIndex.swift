@@ -5,7 +5,7 @@ import os.log
 /// HNSW vector index backed by USearch for fast approximate nearest neighbor search.
 final class VectorIndex: @unchecked Sendable {
 
-    private let logger = Logger(subsystem: "app.familiar", category: "VectorIndex")
+    private let logger = Logger(subsystem: "app.tinker", category: "VectorIndex")
 
     private var index: USearchIndex?
     private let dimensions: UInt32 = 384

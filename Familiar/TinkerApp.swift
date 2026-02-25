@@ -3,7 +3,7 @@ import UserNotifications
 import AppKit
 
 @main
-struct FamiliarApp: App {
+struct TinkerApp: App {
     init() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
         // Set accent color to warm peach/apricot
@@ -172,24 +172,6 @@ struct FamiliarApp: App {
                 }
             }
 
-            CommandMenu("Memory") {
-                Button("Backfill Last 5 Days") {
-                    MemoryDaemon.shared.backfill(days: 5)
-                }
-
-                Button("Force Session Note") {
-                    MemoryDaemon.shared.forceSessionNote()
-                }
-
-                Button("Force Episodic Render") {
-                    MemoryDaemon.shared.forceRender()
-                }
-
-                Button("Force Graduation (semantic)") {
-                    MemoryDaemon.shared.forceGraduation()
-                }
-            }
-
             CommandMenu("View") {
                 Button("Toggle Sidebar") {
                     NotificationCenter.default.post(name: .toggleSidebar, object: nil)
@@ -207,7 +189,7 @@ struct FamiliarApp: App {
             SettingsView()
         }
 
-        MenuBarExtra("Familiar", image: "MenuBarIcon") {
+        MenuBarExtra("Tinker", image: "MenuBarIcon") {
             Button("New Session") {
                 NSApplication.shared.activate(ignoringOtherApps: true)
                 NotificationCenter.default.post(name: .newSession, object: nil)
@@ -233,11 +215,11 @@ struct FamiliarApp: App {
 
             Divider()
 
-            Button("Show Familiar") {
+            Button("Show Tinker") {
                 NSApplication.shared.activate(ignoringOtherApps: true)
             }
 
-            Button("Quit Familiar") {
+            Button("Quit Tinker") {
                 NSApplication.shared.terminate(nil)
             }
             .keyboardShortcut("q", modifiers: .command)

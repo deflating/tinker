@@ -128,14 +128,14 @@ struct SessionSidebar: View {
                 }
                 .padding(.horizontal, 8)
                 .padding(.vertical, 8)
-                .background(colorScheme == .dark ? Color(nsColor: .windowBackgroundColor) : FamiliarApp.canvasBackground)
+                .background(colorScheme == .dark ? Color(nsColor: .windowBackgroundColor) : TinkerApp.canvasBackground)
                 .overlay(alignment: .top) {
                     Divider()
                 }
             }
 
         }
-        .background(colorScheme == .dark ? Color(nsColor: .windowBackgroundColor) : FamiliarApp.canvasBackground)
+        .background(colorScheme == .dark ? Color(nsColor: .windowBackgroundColor) : TinkerApp.canvasBackground)
         .tint(Color(nsColor: .systemGray))
         .alert("Delete Session?", isPresented: Binding(
             get: { sessionToDelete != nil },
@@ -295,7 +295,7 @@ private struct SessionRowCompact: View {
                             Text("Worktree")
                                 .font(.system(size: 10, weight: .medium))
                         }
-                        .foregroundStyle(FamiliarApp.agentPurple)
+                        .foregroundStyle(TinkerApp.agentPurple)
                     }
                     if !directoryName.isEmpty {
                         Text(directoryName)

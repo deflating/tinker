@@ -6,7 +6,7 @@ import os.log
 @MainActor
 final class DoctorService {
 
-    private let logger = Logger(subsystem: "app.familiar", category: "Doctor")
+    private let logger = Logger(subsystem: "app.tinker", category: "Doctor")
 
     struct Check: Identifiable {
         let id = UUID()

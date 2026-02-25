@@ -3,19 +3,13 @@ import SwiftUI
 // MARK: - Settings Tab
 
 private enum SettingsTab: String, CaseIterable {
-    case general = "General"
     case appearance = "Appearance"
-    case agentProfile = "Agent Profile"
-    case userProfile = "User Profile"
-    case memories = "Memories"
+    case systemPrompt = "System Prompt"
 
     var icon: String {
         switch self {
-        case .general: return "gearshape"
         case .appearance: return "paintbrush"
-        case .agentProfile: return "cpu"
-        case .userProfile: return "person.fill"
-        case .memories: return "brain.head.profile"
+        case .systemPrompt: return "text.bubble"
         }
     }
 }
@@ -23,10 +17,9 @@ private enum SettingsTab: String, CaseIterable {
 // MARK: - Main View
 
 struct SettingsConfiguratorView: View {
-    var seedManager: SeedManager
     var onDismiss: () -> Void
 
-    @State private var selectedTab: SettingsTab = .general
+    @State private var selectedTab: SettingsTab = .appearance
 
     var body: some View {
         VStack(spacing: 0) {
@@ -34,20 +27,14 @@ struct SettingsConfiguratorView: View {
             Divider()
             Group {
                 switch selectedTab {
-                case .general: generalTab
                 case .appearance: appearanceTab
-                case .agentProfile: agentProfileTab
-                case .userProfile: userProfileTab
-                case .memories: memoriesTab
+                case .systemPrompt: systemPromptTab
                 }
             }
             Divider()
             footer
         }
-        .onAppear {
-            seedManager.loadAll()
-        }
-        .background(FamiliarApp.canvasBackground)
+        .background(TinkerApp.canvasBackground)
     }
 
     // MARK: - Header
@@ -63,7 +50,7 @@ struct SettingsConfiguratorView: View {
                 }
             }
             .pickerStyle(.segmented)
-            .frame(width: 500)
+            .frame(width: 300)
             Spacer()
             Button(action: onDismiss) {
                 Image(systemName: "xmark.circle.fill")
@@ -85,21 +72,17 @@ struct SettingsConfiguratorView: View {
                 onDismiss()
             }
             .buttonStyle(.borderedProminent)
-            .tint(FamiliarApp.accent)
+            .tint(TinkerApp.accent)
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 12)
     }
 
-    // MARK: - General Tab
+    // MARK: - Appearance Tab
 
     @AppStorage("accentR") private var accentR = 0.2
     @AppStorage("accentG") private var accentG = 0.62
     @AppStorage("accentB") private var accentB = 0.58
-    @AppStorage("customSystemPrompt") private var systemPrompt = ""
-    @AppStorage("appendSystemPrompt") private var appendSystemPrompt = ""
-    @AppStorage("agentProfileSystemPrompt") private var agentProfileSystemPrompt = ""
-    @AppStorage("userProfileSystemPrompt") private var userProfileSystemPrompt = ""
 
     private struct AccentPreset: Identifiable {
         let id = UUID()
@@ -120,40 +103,6 @@ struct SettingsConfiguratorView: View {
         .init(name: "Noir", r: 0.15, g: 0.15, b: 0.15),
         .init(name: "Rainbow", r: -1, g: -1, b: -1),
     ]
-
-    // MARK: - General Tab
-
-    private var generalTab: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                // System Prompt
-                GroupBox {
-                    VStack(alignment: .leading, spacing: 12) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("System Prompt Override")
-                                .font(.callout.weight(.medium))
-                            Text("Replaces the default system prompt sent to Claude.")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                            TextEditor(text: $systemPrompt)
-                                .font(.system(size: 12))
-                                .frame(minHeight: 60, maxHeight: 120)
-                                .scrollContentBackground(.hidden)
-                                .padding(6)
-                                .background(FamiliarApp.surfaceBackground)
-                                .clipShape(RoundedRectangle(cornerRadius: 6))
-                        }
-                    }
-                    .padding(4)
-                } label: {
-                    Label("Prompts", systemImage: "text.bubble")
-                }
-            }
-            .padding(20)
-        }
-    }
-
-    // MARK: - Appearance Tab
 
     private var appearanceTab: some View {
         ScrollView {
@@ -215,72 +164,55 @@ struct SettingsConfiguratorView: View {
         }
     }
 
-    // MARK: - Agent Profile Tab
+    // MARK: - System Prompt Tab
 
-    private var agentProfileTab: some View {
-        VStack(spacing: 0) {
-            AgentConfiguratorView(onDismiss: onDismiss)
-            Divider()
-            // Append to System Prompt
+    @AppStorage("systemPromptMode") private var systemPromptMode: String = "off"
+    @AppStorage("customSystemPrompt") private var customSystemPrompt: String = ""
+
+    private var systemPromptTab: some View {
+        VStack(alignment: .leading, spacing: 16) {
             GroupBox {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Append to System Prompt")
-                        .font(.callout.weight(.medium))
-                    Text("Agent personality and behavior instructions appended to the system prompt.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    TextEditor(text: $agentProfileSystemPrompt)
-                        .font(.system(size: 12))
-                        .frame(minHeight: 60, maxHeight: 120)
-                        .scrollContentBackground(.hidden)
-                        .padding(6)
-                        .background(FamiliarApp.surfaceBackground)
-                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                VStack(alignment: .leading, spacing: 12) {
+                    Picker("Mode", selection: $systemPromptMode) {
+                        Text("Off").tag("off")
+                        Text("Override").tag("override")
+                        Text("Append").tag("append")
+                    }
+                    .pickerStyle(.segmented)
+
+                    switch systemPromptMode {
+                    case "override":
+                        Text("Replaces the default system prompt entirely.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    case "append":
+                        Text("Appended to the existing system prompt.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    default:
+                        Text("No custom system prompt is used.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 }
                 .padding(4)
             } label: {
-                Label("System Prompt", systemImage: "text.bubble")
+                Label("Mode", systemImage: "slider.horizontal.3")
             }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 12)
-        }
-    }
 
-    // MARK: - User Profile Tab
-
-    private var userProfileTab: some View {
-        VStack(spacing: 0) {
-            UserConfiguratorView(onDismiss: onDismiss)
-            Divider()
-            // Append to System Prompt
-            GroupBox {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Append to System Prompt")
-                        .font(.callout.weight(.medium))
-                    Text("Personal context about you that gets appended to the system prompt.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    TextEditor(text: $userProfileSystemPrompt)
-                        .font(.system(size: 12))
-                        .frame(minHeight: 60, maxHeight: 120)
+            if systemPromptMode != "off" {
+                GroupBox {
+                    TextEditor(text: $customSystemPrompt)
+                        .font(.system(.body, design: .monospaced))
+                        .frame(minHeight: 200)
                         .scrollContentBackground(.hidden)
-                        .padding(6)
-                        .background(FamiliarApp.surfaceBackground)
-                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                } label: {
+                    Label("Prompt Text", systemImage: "text.alignleft")
                 }
-                .padding(4)
-            } label: {
-                Label("System Prompt", systemImage: "text.bubble")
             }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 12)
+
+            Spacer()
         }
+        .padding(20)
     }
-
-    // MARK: - Memories Tab
-
-    private var memoriesTab: some View {
-        MemorySettingsView()
-    }
-
 }

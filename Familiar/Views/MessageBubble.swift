@@ -104,7 +104,7 @@ private struct CopyButton: View {
             if showCopied {
                 Text("Copied!")
                     .font(.system(size: size - 1))
-                    .foregroundStyle(FamiliarApp.accent)
+                    .foregroundStyle(TinkerApp.accent)
             } else {
                 Image(systemName: "doc.on.doc")
                     .font(.system(size: size))
@@ -473,9 +473,9 @@ struct ToolGroupView: View {
     }
 
     private var statusColor: Color {
-        if !isComplete { return FamiliarApp.toolBlue }
+        if !isComplete { return TinkerApp.toolBlue }
         let hasError = tools.contains { $0.role == .toolError }
-        return hasError ? .red : FamiliarApp.toolBlue
+        return hasError ? .red : TinkerApp.toolBlue
     }
 
     var body: some View {
@@ -484,14 +484,14 @@ struct ToolGroupView: View {
                 HStack(spacing: 4) {
                     Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
                         .font(.system(size: 10, weight: .bold))
-                        .foregroundStyle(FamiliarApp.toolBlue)
+                        .foregroundStyle(TinkerApp.toolBlue)
                         .frame(width: 12)
                     Image(systemName: groupIcon)
                         .font(.callout)
-                        .foregroundStyle(FamiliarApp.toolBlue)
+                        .foregroundStyle(TinkerApp.toolBlue)
                     Text(summaryText)
                         .font(.callout.bold())
-                        .foregroundStyle(FamiliarApp.toolBlue)
+                        .foregroundStyle(TinkerApp.toolBlue)
                     Spacer()
 
                     // Status indicator
@@ -514,7 +514,7 @@ struct ToolGroupView: View {
                 .padding(.bottom, 8)
             }
         }
-        .background(FamiliarApp.toolBlue.opacity(0.08))
+        .background(TinkerApp.toolBlue.opacity(0.08))
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }
@@ -544,8 +544,8 @@ private struct ToolGroupItemView: View {
 
     private var color: Color {
         switch message.role {
-        case .toolUse: return FamiliarApp.toolBlue
-        case .toolResult: return FamiliarApp.toolBlue
+        case .toolUse: return TinkerApp.toolBlue
+        case .toolResult: return TinkerApp.toolBlue
         case .toolError: return .red
         default: return .secondary
         }
@@ -722,7 +722,7 @@ struct MessageBubble: View {
                     icon: "wrench.fill",
                     label: message.toolName ?? "Tool",
                     content: message.content,
-                    color: FamiliarApp.toolBlue,
+                    color: TinkerApp.toolBlue,
                     defaultExpanded: true
                 )
                 .frame(maxWidth: 500, alignment: .leading)
@@ -733,7 +733,7 @@ struct MessageBubble: View {
                     icon: "checkmark.circle.fill",
                     label: "Result",
                     content: message.content,
-                    color: FamiliarApp.toolBlue,
+                    color: TinkerApp.toolBlue,
                     defaultExpanded: false
                 )
                 .frame(maxWidth: 500, alignment: .leading)
@@ -755,7 +755,7 @@ struct MessageBubble: View {
                     icon: "brain",
                     label: "Thinking",
                     content: message.content,
-                    color: FamiliarApp.thinkingPink,
+                    color: TinkerApp.thinkingPink,
                     defaultExpanded: true
                 )
                 .frame(maxWidth: 500, alignment: .leading)

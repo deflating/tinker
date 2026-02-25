@@ -5,7 +5,7 @@ import os.log
 @Observable
 @MainActor
 final class GitService {
-    private let logger = Logger(subsystem: "app.familiar", category: "Git")
+    private let logger = Logger(subsystem: "app.tinker", category: "Git")
 
     // MARK: - Published State
 

@@ -2,7 +2,6 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var viewModel = ChatViewModel()
-    @State private var seedManager = SeedManager()
     @State private var showCommandPalette = false
     @State private var showDoctor = false
     @State private var showSpotlight = false
@@ -40,7 +39,7 @@ struct ContentView: View {
                 }
             }
             .navigationTitle("")
-            .toolbarBackground(FamiliarApp.canvasBackground.opacity(0.75), for: .windowToolbar)
+            .toolbarBackground(TinkerApp.canvasBackground.opacity(0.75), for: .windowToolbar)
             .toolbar {
                 ToolbarItem(placement: .navigation) {
                     HStack(spacing: 4) {
@@ -74,7 +73,6 @@ struct ContentView: View {
             set: { viewModel.showSettings = $0 }
         )) {
             SettingsConfiguratorView(
-                seedManager: seedManager,
                 onDismiss: { viewModel.showSettings = false }
             )
             .frame(width: 920, height: 640)
@@ -117,7 +115,7 @@ struct ContentView: View {
         .animation(.easeOut(duration: 0.15), value: showCommandPalette)
         .animation(.easeOut(duration: 0.15), value: showSpotlight)
         .tint(Color(nsColor: .systemGray))
-        .background(FamiliarApp.canvasBackground)
+        .background(TinkerApp.canvasBackground)
         .frame(minWidth: 600, minHeight: 450)
         .modifier(ContentNotificationHandlers(
             viewModel: viewModel,
@@ -360,7 +358,7 @@ final class EmbeddedTerminalSession {
             inputPipe = inPipe
             isRunning = true
             statusText = "Running"
-            appendOutput("familiar shell @ \(directory)\n")
+            appendOutput("tinker shell @ \(directory)\n")
         } catch {
             statusText = "Failed to start shell"
             appendOutput("Failed to start shell: \(error.localizedDescription)\n")
@@ -450,7 +448,7 @@ struct EmbeddedTerminalPaneView: View {
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 8)
-            .background(FamiliarApp.surfaceBackground)
+            .background(TinkerApp.surfaceBackground)
 
             Divider()
 
@@ -497,9 +495,9 @@ struct EmbeddedTerminalPaneView: View {
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 8)
-            .background(FamiliarApp.surfaceBackground)
+            .background(TinkerApp.surfaceBackground)
         }
-        .background(FamiliarApp.canvasBackground)
+        .background(TinkerApp.canvasBackground)
         .overlay(alignment: .leading) {
             Divider()
         }

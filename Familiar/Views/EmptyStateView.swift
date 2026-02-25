@@ -67,7 +67,7 @@ struct EmptyStateView<InputCard: View>: View {
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 40)
         .background {
-            FamiliarApp.canvasBackground
+            TinkerApp.canvasBackground
             BlueprintGridBackground()
         }
         .onAppear {
@@ -189,11 +189,11 @@ private struct ProjectPill: View {
                 ZStack {
                     Image(systemName: "folder.fill")
                         .font(.system(size: 16))
-                        .foregroundStyle(isCurrent ? FamiliarApp.accent : .secondary)
+                        .foregroundStyle(isCurrent ? TinkerApp.accent : .secondary)
 
                     if project.isGit {
                         Circle()
-                            .fill(FamiliarApp.accent)
+                            .fill(TinkerApp.accent)
                             .frame(width: 7, height: 7)
                             .offset(x: 10, y: -8)
                     }
@@ -209,10 +209,10 @@ private struct ProjectPill: View {
             .padding(.vertical, 10)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background {
-                RoundedRectangle(cornerRadius: FamiliarApp.radiusMedium)
+                RoundedRectangle(cornerRadius: TinkerApp.radiusMedium)
                     .fill(pillBackground)
                     .overlay {
-                        RoundedRectangle(cornerRadius: FamiliarApp.radiusMedium)
+                        RoundedRectangle(cornerRadius: TinkerApp.radiusMedium)
                             .strokeBorder(pillBorder, lineWidth: 1)
                     }
             }
@@ -223,17 +223,17 @@ private struct ProjectPill: View {
 
     private var pillBackground: some ShapeStyle {
         if isCurrent {
-            return AnyShapeStyle(FamiliarApp.accent.opacity(0.1))
+            return AnyShapeStyle(TinkerApp.accent.opacity(0.1))
         } else if isHovered {
             return AnyShapeStyle(Color.primary.opacity(0.06))
         } else {
-            return AnyShapeStyle(FamiliarApp.surfaceBackground)
+            return AnyShapeStyle(TinkerApp.surfaceBackground)
         }
     }
 
     private var pillBorder: some ShapeStyle {
         if isCurrent {
-            return AnyShapeStyle(FamiliarApp.accent.opacity(0.3))
+            return AnyShapeStyle(TinkerApp.accent.opacity(0.3))
         } else {
             return AnyShapeStyle(Color.primary.opacity(isHovered ? 0.1 : 0.06))
         }

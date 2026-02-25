@@ -5,7 +5,7 @@ import os.log
 /// WordPiece tokenizer + CoreML MiniLM inference for 384-dim sentence embeddings.
 final class EmbeddingService: @unchecked Sendable {
 
-    private let logger = Logger(subsystem: "app.familiar", category: "Embedding")
+    private let logger = Logger(subsystem: "app.tinker", category: "Embedding")
 
     private var model: MLModel?
     private var vocab: [String: Int] = [:]

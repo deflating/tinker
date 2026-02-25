@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A10000001 /* FamiliarApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000001 /* FamiliarApp.swift */; };
+		A10000001 /* TinkerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000001 /* TinkerApp.swift */; };
 		A10000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000002 /* ContentView.swift */; };
 		A10000003 /* ChatMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000003 /* ChatMessage.swift */; };
 		A10000008 /* ChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000008 /* ChatViewModel.swift */; };
@@ -24,7 +24,6 @@
 		A10000012 /* SlashCommandMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000013 /* SlashCommandMenu.swift */; };
 		A10000014 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000014 /* SettingsView.swift */; };
 		A10000015 /* familiar-cat.png in Resources */ = {isa = PBXBuildFile; fileRef = A20000015 /* familiar-cat.png */; };
-		A10000016 /* SeedManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000016 /* SeedManager.swift */; };
 		A10000018 /* SettingsConfiguratorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000018 /* SettingsConfiguratorView.swift */; };
 
 		A100000201 /* CommandRunState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000201 /* CommandRunState.swift */; };
@@ -50,26 +49,16 @@
 		A100000270 /* WorkflowPreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000270 /* WorkflowPreset.swift */; };
 		A100000280 /* RAGService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000280 /* RAGService.swift */; };
 		A100000290 /* KnowledgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000290 /* KnowledgeView.swift */; };
-		A100000300 /* SeedFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000300 /* SeedFormView.swift */; };
-		A100000310 /* SeedFormDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000310 /* SeedFormDefaults.swift */; };
 		A100000320 /* AgentTeamWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000320 /* AgentTeamWatcher.swift */; };
-		A100000340 /* AgentConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000340 /* AgentConfiguration.swift */; };
-		A100000350 /* AgentConfigurationDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000350 /* AgentConfigurationDefaults.swift */; };
-		A100000360 /* AgentConfiguratorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000360 /* AgentConfiguratorView.swift */; };
-		A100000370 /* UserConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000370 /* UserConfiguration.swift */; };
-		A100000380 /* UserConfigurationDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000380 /* UserConfigurationDefaults.swift */; };
-		A100000390 /* UserConfiguratorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000390 /* UserConfiguratorView.swift */; };
-		A100000410 /* MemorySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000410 /* MemorySettingsView.swift */; };
 		A100000440 /* EmbeddingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000440 /* EmbeddingService.swift */; };
 		A100000450 /* VectorIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000450 /* VectorIndex.swift */; };
-		A100000460 /* MemoryDaemon.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000460 /* MemoryDaemon.swift */; };
 		A100000471 /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000471 /* EmptyStateView.swift */; };
 		A1000000U /* USearch in Frameworks */ = {isa = PBXBuildFile; productRef = B1000000U /* USearch */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		0FF488042F4BF6F700CA5FA9 /* Familiar.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Familiar.entitlements; sourceTree = "<group>"; };
-		A20000001 /* FamiliarApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamiliarApp.swift; sourceTree = "<group>"; };
+		A20000001 /* TinkerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TinkerApp.swift; sourceTree = "<group>"; };
 		A20000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		A20000003 /* ChatMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessage.swift; sourceTree = "<group>"; };
 		A20000008 /* ChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModel.swift; sourceTree = "<group>"; };
@@ -86,7 +75,6 @@
 		A20000013 /* SlashCommandMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlashCommandMenu.swift; sourceTree = "<group>"; };
 		A20000014 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		A20000015 /* familiar-cat.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "familiar-cat.png"; sourceTree = "<group>"; };
-		A20000016 /* SeedManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedManager.swift; sourceTree = "<group>"; };
 		A20000018 /* SettingsConfiguratorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsConfiguratorView.swift; sourceTree = "<group>"; };
 
 		A200000201 /* CommandRunState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandRunState.swift; sourceTree = "<group>"; };
@@ -112,19 +100,9 @@
 		A200000270 /* WorkflowPreset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkflowPreset.swift; sourceTree = "<group>"; };
 		A200000280 /* RAGService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RAGService.swift; sourceTree = "<group>"; };
 		A200000290 /* KnowledgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KnowledgeView.swift; sourceTree = "<group>"; };
-		A200000300 /* SeedFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedFormView.swift; sourceTree = "<group>"; };
-		A200000310 /* SeedFormDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedFormDefaults.swift; sourceTree = "<group>"; };
 		A200000320 /* AgentTeamWatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentTeamWatcher.swift; sourceTree = "<group>"; };
-		A200000340 /* AgentConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentConfiguration.swift; sourceTree = "<group>"; };
-		A200000350 /* AgentConfigurationDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentConfigurationDefaults.swift; sourceTree = "<group>"; };
-		A200000360 /* AgentConfiguratorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentConfiguratorView.swift; sourceTree = "<group>"; };
-		A200000370 /* UserConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserConfiguration.swift; sourceTree = "<group>"; };
-		A200000380 /* UserConfigurationDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserConfigurationDefaults.swift; sourceTree = "<group>"; };
-		A200000390 /* UserConfiguratorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserConfiguratorView.swift; sourceTree = "<group>"; };
 		A200000440 /* EmbeddingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmbeddingService.swift; sourceTree = "<group>"; };
 		A200000450 /* VectorIndex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VectorIndex.swift; sourceTree = "<group>"; };
-		A200000460 /* MemoryDaemon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryDaemon.swift; sourceTree = "<group>"; };
-		A200000410 /* MemorySettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemorySettingsView.swift; sourceTree = "<group>"; };
 		A200000471 /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
 		A3000000P /* Familiar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Familiar.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -146,7 +124,7 @@
 			isa = PBXGroup;
 			children = (
 				0FF488042F4BF6F700CA5FA9 /* Familiar.entitlements */,
-				A20000001 /* FamiliarApp.swift */,
+				A20000001 /* TinkerApp.swift */,
 				A20000012 /* Info.plist */,
 				A200000207 /* Assets.xcassets */,
 				A5000000D /* Models */,
@@ -166,10 +144,6 @@
 				A200000201 /* CommandRunState.swift */,
 				A200000214 /* MCPExtension.swift */,
 				A200000270 /* WorkflowPreset.swift */,
-				A200000340 /* AgentConfiguration.swift */,
-				A200000350 /* AgentConfigurationDefaults.swift */,
-				A200000370 /* UserConfiguration.swift */,
-				A200000380 /* UserConfigurationDefaults.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -205,11 +179,6 @@
 				A200000250 /* SplitSessionView.swift */,
 				A200000260 /* SessionTimelineView.swift */,
 				A200000290 /* KnowledgeView.swift */,
-				A200000300 /* SeedFormView.swift */,
-				A200000310 /* SeedFormDefaults.swift */,
-				A200000360 /* AgentConfiguratorView.swift */,
-				A200000390 /* UserConfiguratorView.swift */,
-				A200000410 /* MemorySettingsView.swift */,
 				A200000471 /* EmptyStateView.swift */,
 			);
 			path = Views;
@@ -238,7 +207,6 @@
 		A5000000J /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				A20000016 /* SeedManager.swift */,
 				A200000202 /* CommandRunner.swift */,
 				A200000F1 /* GitService.swift */,
 				A200000203 /* DoctorService.swift */,
@@ -250,7 +218,6 @@
 				A200000280 /* RAGService.swift */,
 				A200000440 /* EmbeddingService.swift */,
 				A200000450 /* VectorIndex.swift */,
-				A200000460 /* MemoryDaemon.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -291,7 +258,7 @@
 				B1000000P /* ClaudeCodeSDK */,
 				B1000000U /* USearch */,
 			);
-			productName = Familiar;
+			productName = Tinker;
 			productReference = A3000000P /* Familiar.app */;
 			productType = "com.apple.product-type.application";
 		};
@@ -348,7 +315,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A10000001 /* FamiliarApp.swift in Sources */,
+				A10000001 /* TinkerApp.swift in Sources */,
 				A10000002 /* ContentView.swift in Sources */,
 				A10000003 /* ChatMessage.swift in Sources */,
 				A10000008 /* ChatViewModel.swift in Sources */,
@@ -360,7 +327,6 @@
 				A100000F1 /* GitService.swift in Sources */,
 				A10000012 /* SlashCommandMenu.swift in Sources */,
 				A10000014 /* SettingsView.swift in Sources */,
-				A10000016 /* SeedManager.swift in Sources */,
 				A10000018 /* SettingsConfiguratorView.swift in Sources */,
 
 				A100000201 /* CommandRunState.swift in Sources */,
@@ -384,20 +350,10 @@
 				A100000270 /* WorkflowPreset.swift in Sources */,
 				A100000280 /* RAGService.swift in Sources */,
 				A100000290 /* KnowledgeView.swift in Sources */,
-				A100000300 /* SeedFormView.swift in Sources */,
-				A100000310 /* SeedFormDefaults.swift in Sources */,
 				A100000320 /* AgentTeamWatcher.swift in Sources */,
-				A100000340 /* AgentConfiguration.swift in Sources */,
-				A100000350 /* AgentConfigurationDefaults.swift in Sources */,
-				A100000360 /* AgentConfiguratorView.swift in Sources */,
-				A100000370 /* UserConfiguration.swift in Sources */,
-				A100000380 /* UserConfigurationDefaults.swift in Sources */,
-				A100000390 /* UserConfiguratorView.swift in Sources */,
-			A100000410 /* MemorySettingsView.swift in Sources */,
-			A100000440 /* EmbeddingService.swift in Sources */,
-			A100000450 /* VectorIndex.swift in Sources */,
-			A100000460 /* MemoryDaemon.swift in Sources */,
-			A100000471 /* EmptyStateView.swift in Sources */,
+				A100000440 /* EmbeddingService.swift in Sources */,
+				A100000450 /* VectorIndex.swift in Sources */,
+				A100000471 /* EmptyStateView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -469,13 +425,14 @@
 				INFOPLIST_FILE = Familiar/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_CFBundleDisplayName = Tinker;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = app.familiar.macos;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = app.tinker.macos;
+				PRODUCT_NAME = Tinker;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 			};
@@ -496,13 +453,14 @@
 				INFOPLIST_FILE = Familiar/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_CFBundleDisplayName = Tinker;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = app.familiar.macos;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = app.tinker.macos;
+				PRODUCT_NAME = Tinker;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 			};

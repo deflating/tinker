@@ -1,8 +1,8 @@
-# Familiar
+# Tinker
 
 A native macOS desktop app that wraps the Claude Code CLI in a beautiful SwiftUI interface.
 
-Familiar brings Claude directly to your Mac with a seamless, native experience — complete with real-time streaming, tool visualization, session management, and a powerful memory system for context persistence.
+Tinker brings Claude Code to your Mac as a native app — real-time streaming, tool visualization, session management, and git integration.
 
 ## Features
 
@@ -22,10 +22,9 @@ Familiar brings Claude directly to your Mac with a seamless, native experience �
 - **Worktree support** — Seamless integration with git worktrees
 - **MCP tool support** — Clean, categorized display of Model Context Protocol tools
 
-### Context & Memory
-- **Seed file system** — Inject your identity, preferences, and context into every session via customizable system prompts
-- **Memory daemon** — Automatic session notes and rolling episodic memory powered by Claude Haiku
-- **Transcript logging** — Lean, searchable markdown transcripts of every session for future reference
+### Customization
+- **System prompt** — Override or append to the system prompt for every session
+- **Transcript logging** — Lean, searchable markdown transcripts of every session
 
 ## Requirements
 
@@ -57,15 +56,11 @@ The app will launch and guide you through initial setup on first run.
 
 ## Configuration
 
-Familiar stores configuration and session data in `~/.familiar/`. Key directories:
-
-- **seeds/** — System prompt seed files for context injection
-- **sessions/** — Session data and transcripts
-- **memory/** — Episodic memory and notes from the memory daemon
+Tinker stores session data in `~/.tinker/`. Settings are accessible via the gear icon or Cmd+,.
 
 ## Project Status
 
-Familiar is under active development. Features and APIs may change. Report issues and suggestions on GitHub.
+Tinker is under active development. Features and APIs may change. Report issues and suggestions on GitHub.
 
 ## License
 

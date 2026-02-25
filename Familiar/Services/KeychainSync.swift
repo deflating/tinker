@@ -7,7 +7,7 @@ final class KeychainSync {
 
     static let shared = KeychainSync()
 
-    private let logger = Logger(subsystem: "app.familiar", category: "KeychainSync")
+    private let logger = Logger(subsystem: "app.tinker", category: "KeychainSync")
     private let service = "com.familiar.session-auth"
     private let account = "session-token"
 

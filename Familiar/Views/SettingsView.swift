@@ -14,6 +14,6 @@ struct SettingsView: View {
                 .multilineTextAlignment(.center)
         }
         .frame(width: 320, height: 180)
-        .background(FamiliarApp.canvasBackground)
+        .background(TinkerApp.canvasBackground)
     }
 }

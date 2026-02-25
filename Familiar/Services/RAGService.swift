@@ -6,7 +6,7 @@ import os.log
 @Observable
 final class RAGService: @unchecked Sendable {
 
-    private let logger = Logger(subsystem: "app.familiar", category: "RAG")
+    private let logger = Logger(subsystem: "app.tinker", category: "RAG")
 
     // MARK: - Types
 

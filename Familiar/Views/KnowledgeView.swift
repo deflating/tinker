@@ -281,8 +281,8 @@ struct KnowledgeView: View {
             .padding(.vertical, 12)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(FamiliarApp.canvasBackground)
-        .tint(FamiliarApp.accent)
+        .background(TinkerApp.canvasBackground)
+        .tint(TinkerApp.accent)
         .fileImporter(
             isPresented: $showFilePicker,
             allowedContentTypes: allowedTypes,

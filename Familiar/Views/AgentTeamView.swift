@@ -85,7 +85,7 @@ struct AgentTeamView: View {
                 .padding(.bottom, 8)
             }
         }
-        .background(FamiliarApp.agentPurple.opacity(0.06))
+        .background(TinkerApp.agentPurple.opacity(0.06))
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
@@ -94,20 +94,20 @@ struct AgentTeamView: View {
             HStack(spacing: 6) {
                 Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
                     .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(FamiliarApp.agentPurple)
+                    .foregroundStyle(TinkerApp.agentPurple)
                     .frame(width: 12)
                 Image(systemName: "diamond.fill")
                     .font(.system(size: 10))
-                    .foregroundStyle(FamiliarApp.agentPurple)
+                    .foregroundStyle(TinkerApp.agentPurple)
 
                 if agentCount > 0 {
                     Text("\(agentCount) agent\(agentCount == 1 ? "" : "s")")
                         .font(.callout.bold())
-                        .foregroundStyle(FamiliarApp.agentPurple)
+                        .foregroundStyle(TinkerApp.agentPurple)
                 } else {
                     Text("Agent team")
                         .font(.callout.bold())
-                        .foregroundStyle(FamiliarApp.agentPurple)
+                        .foregroundStyle(TinkerApp.agentPurple)
                 }
 
                 Spacer()
@@ -115,23 +115,23 @@ struct AgentTeamView: View {
                 // Status badges
                 if allDone {
                     if doneCount > 0 {
-                        statusBadge("checkmark", count: doneCount, color: FamiliarApp.agentGreen)
+                        statusBadge("checkmark", count: doneCount, color: TinkerApp.agentGreen)
                     }
                     if errorCount > 0 {
-                        statusBadge("xmark", count: errorCount, color: FamiliarApp.agentRed)
+                        statusBadge("xmark", count: errorCount, color: TinkerApp.agentRed)
                     }
                 } else if !taskEntries.isEmpty {
                     HStack(spacing: 4) {
                         if doneCount > 0 {
-                            statusBadge("checkmark", count: doneCount, color: FamiliarApp.agentGreen)
+                            statusBadge("checkmark", count: doneCount, color: TinkerApp.agentGreen)
                         }
                         Image(systemName: "circle.dotted")
                             .font(.system(size: 11))
-                            .foregroundStyle(FamiliarApp.agentPurple)
+                            .foregroundStyle(TinkerApp.agentPurple)
                             .symbolEffect(.pulse, options: .repeating, isActive: true)
                         Text("\(runningCount) running")
                             .font(.caption2)
-                            .foregroundStyle(FamiliarApp.agentPurple.opacity(0.8))
+                            .foregroundStyle(TinkerApp.agentPurple.opacity(0.8))
                     }
                 }
             }
@@ -284,9 +284,9 @@ private struct AgentActivityRowView: View {
 
     private var statusColor: Color {
         switch entry.status {
-        case .running: return FamiliarApp.agentPurple
-        case .complete: return FamiliarApp.agentGreen
-        case .error: return FamiliarApp.agentRed
+        case .running: return TinkerApp.agentPurple
+        case .complete: return TinkerApp.agentGreen
+        case .error: return TinkerApp.agentRed
         }
     }
 
@@ -309,7 +309,7 @@ private struct AgentActivityRowView: View {
                         .foregroundStyle(.white)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(FamiliarApp.agentPurple.opacity(0.6))
+                        .background(TinkerApp.agentPurple.opacity(0.6))
                         .clipShape(Capsule())
 
                         Text(entry.title)
@@ -355,7 +355,7 @@ private struct AgentActivityRowView: View {
                 .padding(.bottom, 8)
             }
         }
-        .background(FamiliarApp.agentPurple.opacity(entry.status == .running ? 0.08 : 0.04))
+        .background(TinkerApp.agentPurple.opacity(entry.status == .running ? 0.08 : 0.04))
         .clipShape(RoundedRectangle(cornerRadius: 6))
     }
 }

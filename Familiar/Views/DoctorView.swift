@@ -9,7 +9,7 @@ struct DoctorView: View {
             HStack {
                 Image(systemName: "stethoscope")
                     .font(.title2)
-                    .foregroundStyle(FamiliarApp.accent)
+                    .foregroundStyle(TinkerApp.accent)
                 Text("Diagnostics")
                     .font(.title2.bold())
                 Spacer()

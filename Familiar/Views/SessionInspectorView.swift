@@ -68,7 +68,7 @@ struct SessionInspectorView: View {
                         inspectorRow("Mode", value: viewModel.selectedPermissionMode)
                         inspectorRow("Directory", value: (viewModel.workingDirectory as NSString).lastPathComponent)
                         if viewModel.currentSession?.isWorktree == true {
-                            inspectorRow("Type", value: "Worktree", color: FamiliarApp.agentPurple)
+                            inspectorRow("Type", value: "Worktree", color: TinkerApp.agentPurple)
                         }
                     }
 
@@ -179,7 +179,7 @@ struct SessionInspectorView: View {
                 .padding(12)
             }
         }
-        .background(FamiliarApp.canvasBackground)
+        .background(TinkerApp.canvasBackground)
     }
 
     @ViewBuilder

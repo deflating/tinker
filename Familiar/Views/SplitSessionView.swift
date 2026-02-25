@@ -11,7 +11,7 @@ struct SplitSessionView: View {
             HStack(spacing: 6) {
                 Image(systemName: "bubble.left.and.bubble.right")
                     .font(.system(size: 11))
-                    .foregroundStyle(FamiliarApp.accent)
+                    .foregroundStyle(TinkerApp.accent)
                 Text(session.name)
                     .font(.callout.bold())
                     .lineLimit(1)
@@ -22,7 +22,7 @@ struct SplitSessionView: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(FamiliarApp.surfaceBackground)
+            .background(TinkerApp.surfaceBackground)
 
             Divider()
 
@@ -44,6 +44,6 @@ struct SplitSessionView: View {
                 }
             }
         }
-        .background(FamiliarApp.canvasBackground)
+        .background(TinkerApp.canvasBackground)
     }
 }

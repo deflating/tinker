@@ -186,7 +186,7 @@ struct ChatView: View {
                 }
                 .padding(.horizontal, 12)
                 .padding(.vertical, 6)
-                .background(FamiliarApp.canvasBackground.opacity(0.92))
+                .background(TinkerApp.canvasBackground.opacity(0.92))
                 Divider()
             }
 
@@ -214,7 +214,7 @@ struct ChatView: View {
                                     .transition(.opacity.combined(with: .offset(y: 8)))
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 8)
-                                            .stroke(FamiliarApp.accent, lineWidth: isMatch ? 1.5 : 0)
+                                            .stroke(TinkerApp.accent, lineWidth: isMatch ? 1.5 : 0)
                                             .opacity(isMatch ? 1 : 0)
                                     )
                                     .opacity(!searchText.isEmpty && !isMatch ? 0.4 : 1)
@@ -235,7 +235,7 @@ struct ChatView: View {
                                     .transition(.opacity.combined(with: .offset(y: 8)))
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 8)
-                                            .stroke(FamiliarApp.accent, lineWidth: hasMatch ? 1.5 : 0)
+                                            .stroke(TinkerApp.accent, lineWidth: hasMatch ? 1.5 : 0)
                                             .opacity(hasMatch ? 1 : 0)
                                     )
                                     .opacity(!searchText.isEmpty && !hasMatch ? 0.4 : 1)
@@ -288,7 +288,7 @@ struct ChatView: View {
             .overlay(alignment: .top) {
                 // Feather the harsh toolbar divider line
                 LinearGradient(
-                    colors: [FamiliarApp.canvasBackground, FamiliarApp.canvasBackground.opacity(0)],
+                    colors: [TinkerApp.canvasBackground, TinkerApp.canvasBackground.opacity(0)],
                     startPoint: .top,
                     endPoint: .bottom
                 )
@@ -298,7 +298,7 @@ struct ChatView: View {
             .overlay(alignment: .bottom) {
                 // Soft gradient fade at bottom of conversation
                 LinearGradient(
-                    colors: [FamiliarApp.canvasBackground.opacity(0), FamiliarApp.canvasBackground],
+                    colors: [TinkerApp.canvasBackground.opacity(0), TinkerApp.canvasBackground],
                     startPoint: .top,
                     endPoint: .bottom
                 )
@@ -372,7 +372,7 @@ struct ChatView: View {
             }
             } // end if has messages (bottom input)
         }
-        .background(FamiliarApp.canvasBackground)
+        .background(TinkerApp.canvasBackground)
         .sheet(isPresented: $showAgentTeamSheet) {
             if let watcher = agentTeamWatcher {
                 AgentTeamSheetView(watcher: watcher)
@@ -381,7 +381,7 @@ struct ChatView: View {
         }
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .stroke(FamiliarApp.accent, lineWidth: 2)
+                .stroke(TinkerApp.accent, lineWidth: 2)
                 .opacity(isDragOver ? 1 : 0)
                 .animation(.easeInOut(duration: 0.15), value: isDragOver)
         )
@@ -590,7 +590,7 @@ struct ChatView: View {
                         .foregroundStyle(.white)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(FamiliarApp.agentPurple)
+                        .background(TinkerApp.agentPurple)
                         .clipShape(Capsule())
                     }
                     .buttonStyle(.plain)
@@ -609,7 +609,7 @@ struct ChatView: View {
                     Button(action: { sendMessage() }) {
                         Image(systemName: "arrow.up.circle.fill")
                             .font(.system(size: style.buttonSize))
-                            .foregroundStyle(messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && attachedFiles.isEmpty ? .gray : FamiliarApp.accent)
+                            .foregroundStyle(messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && attachedFiles.isEmpty ? .gray : TinkerApp.accent)
                             .animation(.easeOut(duration: 0.15), value: messageText.isEmpty)
                     }
                     .buttonStyle(.borderless)
@@ -669,7 +669,7 @@ struct ChatView: View {
                 }
             }
             .buttonStyle(.plain)
-            .foregroundStyle(FamiliarApp.accent)
+            .foregroundStyle(TinkerApp.accent)
             .help("Click to change working directory")
             .accessibilityLabel("Change working directory")
         }
@@ -1082,7 +1082,7 @@ struct ChatToolbarTerminal: View {
             Image(systemName: "terminal")
                 .font(.system(size: 10))
                 .frame(width: 26, height: 26, alignment: .center)
-                .foregroundStyle(isOpen ? FamiliarApp.accent : .secondary)
+                .foregroundStyle(isOpen ? TinkerApp.accent : .secondary)
         }
         .help(isOpen ? "Hide terminal pane" : "Show terminal pane")
         .accessibilityLabel(isOpen ? "Hide terminal pane" : "Show terminal pane")
@@ -1139,10 +1139,10 @@ struct ChatToolbarLeading: View {
                 HStack(spacing: 3) {
                     Image(systemName: "arrow.triangle.branch")
                         .font(.system(size: 10))
-                        .foregroundStyle(FamiliarApp.agentPurple)
+                        .foregroundStyle(TinkerApp.agentPurple)
                     Text("Worktree")
                         .font(.system(size: 11, weight: .medium))
-                        .foregroundStyle(FamiliarApp.agentPurple)
+                        .foregroundStyle(TinkerApp.agentPurple)
                 }
             }
         }
@@ -1350,7 +1350,7 @@ struct CommitSheetView: View {
 
     private func performCommit() {
         isCommitting = true
-        let message = commitMessage.isEmpty ? "Update from Familiar" : commitMessage
+        let message = commitMessage.isEmpty ? "Update from Tinker" : commitMessage
 
         Task {
             let success = await viewModel.gitService.commit(
@@ -1441,7 +1441,7 @@ struct ChatToolbarNotifications: View {
     var body: some View {
         Button(action: {
             let content = UNMutableNotificationContent()
-            content.title = "Familiar"
+            content.title = "Tinker"
             content.body = "Notifications are enabled."
             content.sound = .default
             let request = UNNotificationRequest(
@@ -1468,8 +1468,8 @@ struct StatusBar: View {
 
     private var statusDotColor: Color {
         switch viewModel.runState {
-        case .idle, .completed: return Color(FamiliarApp.accent)
-        case .running, .stopping: return Color(FamiliarApp.earthSand)
+        case .idle, .completed: return Color(TinkerApp.accent)
+        case .running, .stopping: return Color(TinkerApp.earthSand)
         case .failed: return .red
         case .cancelled: return .orange
         }
@@ -1485,7 +1485,7 @@ struct StatusBar: View {
                     .overlay {
                         if viewModel.runState.isActive {
                             Circle()
-                                .fill(FamiliarApp.earthSand.opacity(0.4))
+                                .fill(TinkerApp.earthSand.opacity(0.4))
                                 .frame(width: 10, height: 10)
                                 .phaseAnimator([false, true]) { content, phase in
                                     content.opacity(phase ? 0.0 : 1.0)
@@ -1543,7 +1543,7 @@ struct StatusBar: View {
         .padding(.leading, 56)
         .padding(.trailing, 12)
         .padding(.vertical, 4)
-        .background(FamiliarApp.canvasBackground.opacity(0.6))
+        .background(TinkerApp.canvasBackground.opacity(0.6))
         .onChange(of: viewModel.isLoading) { _, loading in
             if loading {
                 elapsed = 0
