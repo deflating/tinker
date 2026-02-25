@@ -20,17 +20,18 @@ class ChatViewModel {
         return appSupport.appendingPathComponent("Tinker", isDirectory: true)
     }()
     private static let sessionsFile: URL = storageDirectory.appendingPathComponent("sessions.json")
+    private static let threadsFile: URL = storageDirectory.appendingPathComponent("threads.json")
     private static let messagesDirectory: URL = storageDirectory.appendingPathComponent("messages", isDirectory: true)
 
     /// Persist all message types so tool use, thinking, etc. survive reload
     private static let persistableRoles: Set<MessageRole> = [.user, .assistant, .toolUse, .toolResult, .toolError, .thinking, .system]
 
-    let ragService = RAGService()
     let gitService = GitService()
     var messages: [ChatMessage] = []
     var error: Error?
     var workingDirectory: String
     var sessions: [Session] = []
+    var threads: [SessionThread] = []
     var currentSession: Session?
     var lastSentMessage: String = ""
     var showSettings: Bool = false
@@ -50,6 +51,7 @@ class ChatViewModel {
 
     // Lean transcript logger
     private let transcriptLogger = TranscriptLogger()
+    private let titleGenerator = SessionTitleGenerator.shared
 
     // Token usage & cost tracking (delegated from runner)
     var lastInputTokens: Int { commandRunner.lastInputTokens }
@@ -96,6 +98,7 @@ class ChatViewModel {
         self.commandRunner = CommandRunner(workingDirectory: dir)
         setupRunnerCallbacks()
         loadSessions()
+        loadThreads()
         refreshGitBranch()
 
         // Start session server for iOS companion app
@@ -123,11 +126,13 @@ class ChatViewModel {
 
         commandRunner.onAssistantContent = { [weak self] messageId, content, isComplete in
             guard let self else { return }
+
             self.updateMessage(messageId, content: content, isComplete: isComplete)
         }
 
         commandRunner.onToolMessage = { [weak self] role, content, type, toolName in
             guard let self else { return }
+
             self.addMessage(role: role, content: content, type: type, toolName: toolName)
 
             // Log to lean transcript
@@ -293,6 +298,11 @@ class ChatViewModel {
             session.updatedAt = Date()
             if session.name == "New Session" {
                 session.name = String(trimmed.prefix(40))
+                // Fire AFM title generation asynchronously
+                let sessionId = session.id
+                titleGenerator.generateTitle(for: sessionId, messages: messages) { [weak self] title in
+                    self?.applyGeneratedTitle(title, to: sessionId)
+                }
             }
             sessions[idx] = session
             currentSession = session
@@ -308,11 +318,8 @@ class ChatViewModel {
             isComplete: false
         ))
 
-        let ragContext = ragService.retrieve(query: trimmed)
-        let augmentedPrompt = ragContext.isEmpty ? trimmed : ragContext + "\n\n" + trimmed
-
         commandRunner.run(
-            prompt: augmentedPrompt,
+            prompt: trimmed,
             sessionId: currentSessionId,
             model: selectedModel,
             messageId: assistantId,
@@ -446,6 +453,79 @@ class ChatViewModel {
         Task { await gitService.removeWorktree(path: wtPath, from: origin) }
     }
 
+    // MARK: - Session Organisation
+
+    func togglePin(_ session: Session) {
+        guard let idx = sessions.firstIndex(where: { $0.id == session.id }) else { return }
+        sessions[idx].isPinned.toggle()
+        if currentSession?.id == session.id { currentSession = sessions[idx] }
+        saveSessions()
+    }
+
+    func addTag(_ tag: String, to session: Session) {
+        guard let idx = sessions.firstIndex(where: { $0.id == session.id }) else { return }
+        let trimmed = tag.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !trimmed.isEmpty, !sessions[idx].tags.contains(trimmed) else { return }
+        sessions[idx].tags.append(trimmed)
+        if currentSession?.id == session.id { currentSession = sessions[idx] }
+        saveSessions()
+    }
+
+    func removeTag(_ tag: String, from session: Session) {
+        guard let idx = sessions.firstIndex(where: { $0.id == session.id }) else { return }
+        sessions[idx].tags.removeAll { $0 == tag }
+        if currentSession?.id == session.id { currentSession = sessions[idx] }
+        saveSessions()
+    }
+
+    var allTags: [String] {
+        Array(Set(sessions.flatMap(\.tags))).sorted()
+    }
+
+    func assignThread(_ thread: SessionThread?, to session: Session) {
+        guard let idx = sessions.firstIndex(where: { $0.id == session.id }) else { return }
+        sessions[idx].threadId = thread?.id
+        if currentSession?.id == session.id { currentSession = sessions[idx] }
+        saveSessions()
+    }
+
+    func createThread(name: String, color: String = "blue") -> SessionThread {
+        let thread = SessionThread(name: name, color: color)
+        threads.append(thread)
+        saveThreads()
+        return thread
+    }
+
+    func renameThread(_ thread: SessionThread, to name: String) {
+        guard let idx = threads.firstIndex(where: { $0.id == thread.id }) else { return }
+        threads[idx].name = name
+        saveThreads()
+    }
+
+    func deleteThread(_ thread: SessionThread) {
+        // Unassign all sessions from this thread
+        for i in sessions.indices where sessions[i].threadId == thread.id {
+            sessions[i].threadId = nil
+        }
+        if let current = currentSession, current.threadId == thread.id {
+            currentSession?.threadId = nil
+        }
+        threads.removeAll { $0.id == thread.id }
+        saveThreads()
+        saveSessions()
+    }
+
+    func updateThreadColor(_ thread: SessionThread, to color: String) {
+        guard let idx = threads.firstIndex(where: { $0.id == thread.id }) else { return }
+        threads[idx].color = color
+        saveThreads()
+    }
+
+    func thread(for session: Session) -> SessionThread? {
+        guard let threadId = session.threadId else { return nil }
+        return threads.first { $0.id == threadId }
+    }
+
     func pickWorkingDirectory() {
         let panel = NSOpenPanel()
         panel.canChooseFiles = false
@@ -461,6 +541,15 @@ class ChatViewModel {
 
 
     // MARK: - Private
+
+    private func applyGeneratedTitle(_ title: String, to sessionId: String) {
+        guard let idx = sessions.firstIndex(where: { $0.id == sessionId }) else { return }
+        sessions[idx].name = title
+        if currentSession?.id == sessionId {
+            currentSession?.name = title
+        }
+        saveSessions()
+    }
 
     private func updateMessage(_ id: UUID, content: String, isComplete: Bool) {
         if let idx = messages.firstIndex(where: { $0.id == id }) {
@@ -478,6 +567,14 @@ class ChatViewModel {
                 currentSession = session
                 saveSessions()
 
+                // Revise title after first assistant reply, and again after ~5 exchanges
+                let userMessageCount = messages.filter { $0.role == .user }.count
+                if userMessageCount == 1 || userMessageCount == 5 {
+                    let sessionId = session.id
+                    titleGenerator.generateTitle(for: sessionId, messages: messages) { [weak self] title in
+                        self?.applyGeneratedTitle(title, to: sessionId)
+                    }
+                }
             }
         }
     }
@@ -592,6 +689,28 @@ class ChatViewModel {
             return
         }
         sessions = loaded
+    }
+
+    private func saveThreads() {
+        ensureStorageDirectories()
+        do {
+            let encoder = JSONEncoder()
+            encoder.dateEncodingStrategy = .iso8601
+            let data = try encoder.encode(threads)
+            try data.write(to: Self.threadsFile, options: .atomic)
+        } catch {
+            logger.error("Failed to save threads: \(error.localizedDescription)")
+        }
+    }
+
+    private func loadThreads() {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        guard let data = try? Data(contentsOf: Self.threadsFile),
+              let loaded = try? decoder.decode([SessionThread].self, from: data) else {
+            return
+        }
+        threads = loaded
     }
 
     private func messagesFile(for sessionId: String) -> URL {

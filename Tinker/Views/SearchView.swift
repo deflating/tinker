@@ -7,6 +7,8 @@ struct SearchView: View {
     @State private var selectedRoles: Set<SearchRoleFilter> = Set(SearchRoleFilter.allCases)
     @State private var selectedSession: SearchSessionScope = .current
     @State private var dateFilter: SearchDateFilter = .anytime
+    @State private var filterTag: String?
+    @State private var filterThreadId: String?
     @FocusState private var isSearchFocused: Bool
 
     enum SearchRoleFilter: String, CaseIterable, Identifiable {
@@ -39,19 +41,33 @@ struct SearchView: View {
         case thisMonth = "This Month"
     }
 
+    private var sessionsInScope: [Session] {
+        var sessions = viewModel.sessions
+        if let tag = filterTag {
+            sessions = sessions.filter { $0.tags.contains(tag) }
+        }
+        if let threadId = filterThreadId {
+            sessions = sessions.filter { $0.threadId == threadId }
+        }
+        return sessions
+    }
+
     private var searchableMessages: [SearchResult] {
         guard !searchText.isEmpty else { return [] }
 
         switch selectedSession {
         case .current:
-            return filterMessages(
-                viewModel.messages,
-                sessionId: viewModel.currentSession?.id ?? "",
-                sessionName: viewModel.currentSession?.name ?? "Current Session"
-            )
+            if let current = viewModel.currentSession, passesSessionFilter(current) {
+                return filterMessages(
+                    viewModel.messages,
+                    sessionId: current.id,
+                    sessionName: current.name
+                )
+            }
+            return []
         case .all:
             var results: [SearchResult] = []
-            for session in viewModel.sessions {
+            for session in sessionsInScope {
                 let messages = viewModel.loadMessagesForSplit(sessionId: session.id)
                 results.append(contentsOf: filterMessages(messages, sessionId: session.id, sessionName: session.name))
             }
@@ -62,10 +78,16 @@ struct SearchView: View {
     /// Sessions whose name or last message match the search text
     private var matchingSessions: [Session] {
         guard !searchText.isEmpty, selectedSession == .all else { return [] }
-        return viewModel.sessions.filter {
+        return sessionsInScope.filter {
             $0.name.localizedCaseInsensitiveContains(searchText) ||
             $0.lastMessage.localizedCaseInsensitiveContains(searchText)
         }
+    }
+
+    private func passesSessionFilter(_ session: Session) -> Bool {
+        if let tag = filterTag, !session.tags.contains(tag) { return false }
+        if let threadId = filterThreadId, session.threadId != threadId { return false }
+        return true
     }
 
     private func filterMessages(_ messages: [ChatMessage], sessionId: String, sessionName: String) -> [SearchResult] {
@@ -177,7 +199,69 @@ struct SearchView: View {
                 }
             }
             .padding(.horizontal, 20)
-            .padding(.bottom, 8)
+            .padding(.bottom, 4)
+
+            // Tag and thread filters
+            if !viewModel.allTags.isEmpty || !viewModel.threads.isEmpty {
+                HStack(spacing: 6) {
+                    if !viewModel.threads.isEmpty {
+                        Menu {
+                            Button("All Threads") { filterThreadId = nil }
+                            Divider()
+                            ForEach(viewModel.threads) { thread in
+                                Button {
+                                    filterThreadId = thread.id
+                                } label: {
+                                    HStack {
+                                        Text(thread.name)
+                                        if filterThreadId == thread.id {
+                                            Image(systemName: "checkmark")
+                                        }
+                                    }
+                                }
+                            }
+                        } label: {
+                            HStack(spacing: 3) {
+                                Image(systemName: "line.3.horizontal")
+                                    .font(.system(size: 9))
+                                Text(filterThreadId.flatMap { id in viewModel.threads.first { $0.id == id }?.name } ?? "All Threads")
+                                    .font(.system(size: 11, weight: .medium))
+                            }
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(filterThreadId != nil ? Color.accentColor.opacity(0.15) : Color.primary.opacity(0.06))
+                            .clipShape(Capsule())
+                        }
+                        .menuStyle(.borderlessButton)
+                        .fixedSize()
+                    }
+
+                    if !viewModel.allTags.isEmpty {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 4) {
+                                ForEach(viewModel.allTags, id: \.self) { tag in
+                                    Button {
+                                        filterTag = filterTag == tag ? nil : tag
+                                    } label: {
+                                        Text(tag)
+                                            .font(.system(size: 10, weight: .medium))
+                                            .padding(.horizontal, 6)
+                                            .padding(.vertical, 3)
+                                            .background(filterTag == tag ? Color.accentColor.opacity(0.15) : Color.primary.opacity(0.06))
+                                            .foregroundStyle(filterTag == tag ? .primary : .secondary)
+                                            .clipShape(Capsule())
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer()
+                }
+                .padding(.horizontal, 20)
+                .padding(.bottom, 4)
+            }
 
             Divider()
 
@@ -191,7 +275,7 @@ struct SearchView: View {
                     Text("Search your conversations")
                         .font(.callout)
                         .foregroundStyle(.secondary)
-                    Text("Filter by session, date, and message type")
+                    Text("Filter by session, date, tag, thread, and message type")
                         .font(.caption)
                         .foregroundStyle(.tertiary)
                 }

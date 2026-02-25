@@ -450,7 +450,7 @@ struct ToolGroupView: View {
     private static func mcpCategory(_ name: String) -> String {
         let lower = name.lowercased()
         if lower.contains("search") || lower.contains("web") { return "WebSearch" }
-        if lower.contains("mem") || lower.contains("knowledge") { return "Memory" }
+        if lower.contains("mem") { return "Memory" }
         return "MCP"
     }
 
@@ -460,7 +460,7 @@ struct ToolGroupView: View {
         if hasMCP {
             let lower = toolNames.joined().lowercased()
             if lower.contains("search") || lower.contains("web") { return "globe" }
-            if lower.contains("mem") || lower.contains("knowledge") { return "brain" }
+            if lower.contains("mem") { return "brain" }
             return "puzzlepiece.extension.fill"
         }
         return "wrench.fill"
@@ -533,7 +533,7 @@ private struct ToolGroupItemView: View {
         case .toolUse:
             let name = (message.toolName ?? "").lowercased()
             if name.contains("search") || name.contains("web") { return "globe" }
-            if name.contains("mem") || name.contains("knowledge") { return "brain" }
+            if name.contains("mem") { return "brain" }
             if name.hasPrefix("mcp__") { return "puzzlepiece.extension.fill" }
             return "wrench.fill"
         case .toolResult: return "checkmark.circle.fill"
@@ -770,3 +770,4 @@ struct MessageBubble: View {
         }
     }
 }
+

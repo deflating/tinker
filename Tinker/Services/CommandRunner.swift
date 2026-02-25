@@ -29,6 +29,7 @@ var onResultReceived: ((ResultMessage) -> Void)?
     var onError: ((Error) -> Void)?
     var onComplete: ((String) -> Void)?
 
+
     // Persistent process state
     private var process: Process?
     private var stdinPipe: Pipe?
@@ -103,6 +104,7 @@ var onResultReceived: ((ResultMessage) -> Void)?
             args.append(contentsOf: ["--resume", sessionId])
         }
 
+        print("[CR] args: \(args.joined(separator: " "))")
         proc.arguments = args
         proc.currentDirectoryURL = URL(fileURLWithPath: workingDirectory)
 
@@ -165,6 +167,7 @@ var onResultReceived: ((ResultMessage) -> Void)?
             let data = handle.availableData
             guard !data.isEmpty,
                   let text = String(data: data, encoding: .utf8) else { return }
+            print("[CR] stderr: \(text.trimmingCharacters(in: .whitespacesAndNewlines))")
             self?.logger.debug("stderr: \(text)")
         }
 

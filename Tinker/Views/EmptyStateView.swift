@@ -24,15 +24,11 @@ struct EmptyStateView<InputCard: View>: View {
         VStack(spacing: 0) {
             Spacer()
 
-            // Pixel cat + greeting
-            VStack(spacing: 16) {
-                PixelCatView(size: 80)
-
-                Text(Self.pickGreeting())
-                    .font(.system(size: 22, weight: .semibold, design: .rounded))
-                    .foregroundStyle(.primary.opacity(0.8))
-            }
-            .padding(.bottom, 28)
+            // Greeting
+            Text(Self.pickGreeting())
+                .font(.system(size: 22, weight: .semibold, design: .rounded))
+                .foregroundStyle(.primary.opacity(0.8))
+                .padding(.bottom, 28)
 
             // Project pills
             if !projects.isEmpty {
