@@ -1,0 +1,56 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+*.swp
+*~
+
+# Xcode
+xcuserdata/
+*.xcuserstate
+*.xcworkspace/xcuserdata/
+DerivedData/
+Build/
+.derived/
+
+# Xcode debug symbols
+*.dSYM/
+*.dSYM
+
+# Claude session memory
+**/CLAUDE.md
+.claude/
+
+# Build artifacts
+build/
+dist/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+venv/
+env/
+.venv
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Project-specific
+training-data/
+salience-labels.json
+review-shots/
+
+# OS-specific
+Thumbs.db
+.DS_Store
+.git-backup/
