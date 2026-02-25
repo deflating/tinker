@@ -39,8 +39,8 @@ Tinker brings Claude Code to your Mac as a native app — real-time streaming, t
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/deflating/familiar.git
-   cd familiar
+   git clone https://github.com/deflating/tinker.git
+   cd tinker
    ```
 
 2. Open the project in Xcode:
