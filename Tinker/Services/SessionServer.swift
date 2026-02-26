@@ -28,6 +28,9 @@ final class SessionServer {
     func start() {
         guard listener == nil else { return }
 
+        // Write token to file for simulator companion app development
+        writeTokenFile()
+
         let params = NWParameters.tcp
         let wsOptions = NWProtocolWebSocket.Options()
         params.defaultProtocolStack.applicationProtocols.insert(wsOptions, at: 0)
@@ -40,7 +43,8 @@ final class SessionServer {
         }
 
         // Bonjour advertisement
-        listener?.service = NWListener.Service(name: "Tinker", type: "_tinker._tcp")
+        let machineName = Host.current().localizedName ?? ProcessInfo.processInfo.hostName
+        listener?.service = NWListener.Service(name: "Tinker — \(machineName)", type: "_tinker._tcp")
 
         listener?.stateUpdateHandler = { [weak self] state in
             Task { @MainActor in
@@ -216,6 +220,12 @@ final class SessionServer {
             return Character(scalar)
         }
         return String(filtered)
+    }
+
+    private func writeTokenFile() {
+        let path = FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent(".tinker-auth-token").path
+        try? authToken.write(toFile: path, atomically: true, encoding: .utf8)
     }
 
     private func sendSync(to clientId: UUID) {

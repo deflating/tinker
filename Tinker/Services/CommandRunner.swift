@@ -24,6 +24,7 @@ final class CommandRunner {
     /// Callbacks the view model hooks into
     var onSessionIdEstablished: ((String) -> Void)?
     var onAssistantContent: ((UUID, String, Bool) -> Void)?
+    var onNewAssistantMessage: ((UUID) -> UUID)?  // Called when text resumes after tool use; returns new message ID
     var onToolMessage: ((MessageRole, String, MessageType, String?) -> Void)?
 var onResultReceived: ((ResultMessage) -> Void)?
     var onError: ((Error) -> Void)?
@@ -385,13 +386,20 @@ var onResultReceived: ((ResultMessage) -> Void)?
     }
 
     private func processAssistantContent(message: AssistantMessage, messageId: UUID) {
+        var messageId = messageId
 
         for content in message.message.content {
             switch content {
             case .text(let text, _):
                 print("[CR] text block: \(text.prefix(80))")
                 if hadInterruptSinceLastText && !contentBuffer.isEmpty {
-                    contentBuffer += "\n\n" + text
+                    // Finalize the current message and start a new one
+                    onAssistantContent?(messageId, contentBuffer, true)
+                    if let newId = onNewAssistantMessage?(messageId) {
+                        messageId = newId
+                        currentMessageId = newId
+                    }
+                    contentBuffer = text
                 } else {
                     contentBuffer = text
                 }

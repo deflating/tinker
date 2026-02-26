@@ -134,6 +134,16 @@ class ChatViewModel {
             self.updateMessage(messageId, content: content, isComplete: isComplete)
         }
 
+        commandRunner.onNewAssistantMessage = { [weak self] previousId in
+            guard let self else { return previousId }
+            let newId = UUID()
+            self.currentMessageId = newId
+            let placeholder = ChatMessage(id: newId, role: .assistant, content: "", isComplete: false)
+            self.messages.append(placeholder)
+            SessionServer.shared.broadcastMessage(placeholder)
+            return newId
+        }
+
         commandRunner.onToolMessage = { [weak self] role, content, type, toolName in
             guard let self else { return }
 
