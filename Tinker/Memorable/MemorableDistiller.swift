@@ -2,7 +2,7 @@ import Foundation
 import os.log
 
 /// Scheduled distillation job.
-/// Reads working.md → calls Haiku API → writes episodic.md and semantic.md (mutable section only).
+/// Reads working notes → calls Claude CLI (Haiku) → writes episodic.md and semantic.md.
 /// Runs N times per day on a timer.
 @MainActor
 final class MemorableDistiller {
@@ -55,12 +55,6 @@ final class MemorableDistiller {
     // MARK: - Distillation Pipeline
 
     private func runDistillation() async {
-        let apiKey = MemorableAddOn.shared.apiKey
-        guard !apiKey.isEmpty else {
-            logger.warning("No API key configured, skipping distillation")
-            return
-        }
-
         let workingContent = MemorableAddOn.shared.writer.recentContent(days: 5)
         guard !workingContent.isEmpty else {
             logger.info("No working memory to distill")
@@ -72,39 +66,38 @@ final class MemorableDistiller {
         let existingEpisodic = (try? String(contentsOfFile: episodicPath, encoding: .utf8)) ?? ""
         let existingSemantic = (try? String(contentsOfFile: semanticPath, encoding: .utf8)) ?? ""
 
-        // Step 1: Distill working.md → episodic.md
+        // Step 1: Distill working notes → episodic.md
         logger.info("Running episodic distillation...")
-        if let newEpisodic = await callHaiku(
-            apiKey: apiKey,
-            systemPrompt: """
-            You are a memory distillation system. Your job is to read a raw conversation log \
-            and produce a concise rolling summary of the last 5 days of activity.
+        let episodicPrompt = """
+        You are a memory distillation system. Read the raw conversation log and produce a concise \
+        rolling summary of the last 5 days of activity.
 
-            Rules:
-            - Focus on what happened, what was decided, what was built, what problems were encountered
-            - Use present tense for ongoing things, past tense for completed things
-            - Group by topic/project, not chronologically
-            - Be concise: aim for 500-1500 words total
-            - Include dates where relevant
-            - Drop small talk and routine exchanges
-            - If there's an existing episodic summary, merge new information and drop entries older than 5 days
-            """,
-            userPrompt: """
-            Here is the existing episodic summary (if any):
+        Rules:
+        - Focus on what happened, what was decided, what was built, what problems were encountered
+        - Use present tense for ongoing things, past tense for completed things
+        - Group by topic/project, not chronologically
+        - Be concise: aim for 500-1500 words total
+        - Include dates where relevant
+        - Drop small talk and routine exchanges
+        - If there's an existing episodic summary, merge new information and drop entries older than 5 days
+        - Output ONLY the summary, no preamble or explanation
 
-            \(existingEpisodic)
+        Here is the existing episodic summary (if any):
 
-            ---
+        \(existingEpisodic)
 
-            Here is the raw working memory to distill:
+        ---
 
-            \(workingContent)
+        Here is the raw working memory to distill:
 
-            ---
+        \(workingContent)
 
-            Produce an updated 5-day rolling episodic summary. Drop anything older than 5 days.
-            """
-        ) {
+        ---
+
+        Produce an updated 5-day rolling episodic summary. Drop anything older than 5 days.
+        """
+
+        if let newEpisodic = await callCLI(prompt: episodicPrompt) {
             try? newEpisodic.write(toFile: episodicPath, atomically: true, encoding: .utf8)
             logger.info("Wrote updated episodic.md (\(newEpisodic.count) chars)")
         }
@@ -113,41 +106,38 @@ final class MemorableDistiller {
         logger.info("Running semantic graduation...")
         let mutableSection = extractMutableSection(from: existingSemantic)
 
-        if let newMutable = await callHaiku(
-            apiKey: apiKey,
-            systemPrompt: """
-            You are a knowledge graduation system. You identify facts and knowledge that have \
-            persisted across multiple days and should be stored in long-term memory.
+        let semanticPrompt = """
+        You are a knowledge graduation system. Identify facts and knowledge that have persisted \
+        across multiple days and should be stored in long-term memory.
 
-            Rules:
-            - Only graduate knowledge that has appeared consistently over multiple days
-            - Focus on: project states, architectural decisions, file paths, learned patterns, \
-              user preferences discovered through interaction, tool configurations
-            - Do NOT include: transient conversation topics, one-off questions, debugging sessions \
-              that were resolved
-            - Keep the mutable section organized with clear markdown headers
-            - Merge with existing mutable content — update entries, don't duplicate
-            - Be concise: each fact should be 1-2 lines
-            """,
-            userPrompt: """
-            Here is the current mutable knowledge section:
+        Rules:
+        - Only graduate knowledge that has appeared consistently over multiple days
+        - Focus on: project states, architectural decisions, file paths, learned patterns, \
+          user preferences discovered through interaction, tool configurations
+        - Do NOT include: transient conversation topics, one-off questions, debugging sessions \
+          that were resolved
+        - Keep the section organized with clear markdown headers
+        - Merge with existing content — update entries, don't duplicate
+        - Be concise: each fact should be 1-2 lines
+        - Output ONLY the mutable section content, no preamble or explanation
 
-            \(mutableSection)
+        Here is the current mutable knowledge section:
 
-            ---
+        \(mutableSection)
 
-            Here is the current episodic summary (what's been happening recently):
+        ---
 
-            \(existingEpisodic)
+        Here is the current episodic summary (what's been happening recently):
 
-            ---
+        \(existingEpisodic)
 
-            Update the mutable knowledge section. Only add things that seem to have persisted \
-            beyond a single session. Return ONLY the mutable section content (no separator, no \
-            immutable section).
-            """
-        ) {
-            // Reconstruct semantic.md preserving immutable section
+        ---
+
+        Update the mutable knowledge section. Only add things that seem to have persisted \
+        beyond a single session. Return ONLY the mutable section content.
+        """
+
+        if let newMutable = await callCLI(prompt: semanticPrompt) {
             let immutableSection = extractImmutableSection(from: existingSemantic)
             let newSemantic = immutableSection + "\n\n" + Self.immutableSeparator + "\n\n" + newMutable
             try? newSemantic.write(toFile: semanticPath, atomically: true, encoding: .utf8)
@@ -163,54 +153,52 @@ final class MemorableDistiller {
         logger.info("Distillation complete")
     }
 
-    // MARK: - Haiku API
+    // MARK: - Claude CLI
 
-    private func callHaiku(apiKey: String, systemPrompt: String, userPrompt: String) async -> String? {
-        let url = URL(string: "https://api.anthropic.com/v1/messages")!
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
-        request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
+    private func callCLI(prompt: String) async -> String? {
+        let claudePath = FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent(".local/bin/claude").path
 
-        let body: [String: Any] = [
-            "model": "claude-haiku-4-5-20251001",
-            "max_tokens": 4096,
-            "system": systemPrompt,
-            "messages": [
-                ["role": "user", "content": userPrompt]
-            ]
-        ]
-
-        guard let httpBody = try? JSONSerialization.data(withJSONObject: body) else {
-            logger.error("Failed to serialize Haiku request")
+        guard FileManager.default.fileExists(atPath: claudePath) else {
+            logger.error("Claude CLI not found at \(claudePath)")
             return nil
         }
-        request.httpBody = httpBody
+
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: claudePath)
+        process.arguments = [
+            "-p", prompt,
+            "--model", "claude-haiku-4-5-20251001",
+            "--max-turns", "1"
+        ]
+
+        let stdout = Pipe()
+        let stderr = Pipe()
+        process.standardOutput = stdout
+        process.standardError = stderr
 
         do {
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-                let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
-                logger.error("Haiku API returned status \(statusCode)")
-                if let body = String(data: data, encoding: .utf8) {
-                    logger.error("Response: \(body.prefix(500))")
-                }
-                return nil
-            }
-
-            guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-                  let content = json["content"] as? [[String: Any]],
-                  let firstBlock = content.first,
-                  let text = firstBlock["text"] as? String else {
-                logger.error("Failed to parse Haiku response")
-                return nil
-            }
-
-            return text
+            try process.run()
         } catch {
-            logger.error("Haiku API call failed: \(error.localizedDescription)")
+            logger.error("Failed to launch Claude CLI: \(error.localizedDescription)")
             return nil
+        }
+
+        return await withCheckedContinuation { continuation in
+            process.terminationHandler = { _ in
+                let data = stdout.fileHandleForReading.readDataToEndOfFile()
+                let output = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines)
+
+                if process.terminationStatus != 0 {
+                    let errData = stderr.fileHandleForReading.readDataToEndOfFile()
+                    let errOutput = String(data: errData, encoding: .utf8) ?? ""
+                    Task { @MainActor in
+                        self.logger.error("Claude CLI exited with code \(process.terminationStatus): \(errOutput.prefix(200))")
+                    }
+                }
+
+                continuation.resume(returning: output?.isEmpty == true ? nil : output)
+            }
         }
     }
 
@@ -229,5 +217,4 @@ final class MemorableDistiller {
         }
         return String(semantic[range.upperBound...]).trimmingCharacters(in: .whitespacesAndNewlines)
     }
-
 }

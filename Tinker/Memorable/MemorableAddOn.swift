@@ -3,7 +3,8 @@ import os.log
 
 /// Memorable — a complete memory system for Tinker.
 /// Three layers: working (real-time), episodic (5-day rolling), semantic (long-term).
-/// Two human-edited seeds: preferences.md and persona.md.
+/// Identity (persona/preferences) is owned by Familiar, not Memorable.
+/// Memory files (episodic, semantic, working) are read actively by Claude, not injected.
 @Observable
 @MainActor
 class MemorableAddOn: TinkerAddOn {
@@ -12,7 +13,7 @@ class MemorableAddOn: TinkerAddOn {
     let id = "memorable"
     let name = "Memorable"
     let icon = "brain.head.profile"
-    let description = "Memory system. Captures context and injects accumulated knowledge."
+    let description = "Memory system. Captures working context and distills long-term memory."
 
     private let logger = Logger(subsystem: "app.tinker", category: "Memorable")
 
@@ -20,7 +21,6 @@ class MemorableAddOn: TinkerAddOn {
 
     private static let enabledKey = "memorableEnabled"
     private static let captureEnabledKey = "memorableCaptureEnabled"
-    private static let injectionEnabledKey = "memorableInjectionEnabled"
     private static let distillationEnabledKey = "memorableDistillationEnabled"
     private static let distillationFrequencyKey = "memorableDistillationFrequency"
     private static let directoryKey = "memorableDirectory"
@@ -37,11 +37,6 @@ class MemorableAddOn: TinkerAddOn {
     var captureEnabled: Bool {
         get { UserDefaults.standard.bool(forKey: Self.captureEnabledKey) }
         set { UserDefaults.standard.set(newValue, forKey: Self.captureEnabledKey) }
-    }
-
-    var injectionEnabled: Bool {
-        get { UserDefaults.standard.bool(forKey: Self.injectionEnabledKey) }
-        set { UserDefaults.standard.set(newValue, forKey: Self.injectionEnabledKey) }
     }
 
     var distillationEnabled: Bool {
@@ -74,10 +69,8 @@ class MemorableAddOn: TinkerAddOn {
         set { UserDefaults.standard.set(newValue, forKey: Self.apiKeyKey) }
     }
 
-    // MARK: - File Contents (cached)
+    // MARK: - File Contents (cached for UI display)
 
-    private(set) var preferencesContent: String = ""
-    private(set) var personaContent: String = ""
     private(set) var episodicContent: String = ""
     private(set) var semanticContent: String = ""
     private(set) var workingLineCount: Int = 0
@@ -93,9 +86,6 @@ class MemorableAddOn: TinkerAddOn {
     var workingDirectory: String { "\(directory)/working" }
     var episodicPath: String { "\(directory)/episodic.md" }
     var semanticPath: String { "\(directory)/semantic.md" }
-    var seedsDirectory: String { "\(directory)/seeds" }
-    var preferencesPath: String { "\(seedsDirectory)/preferences.md" }
-    var personaPath: String { "\(seedsDirectory)/persona.md" }
 
     // MARK: - Init
 
@@ -104,15 +94,11 @@ class MemorableAddOn: TinkerAddOn {
         self.writer = WorkingMemoryWriter(directory: dir)
         self.distiller = MemorableDistiller(directory: dir)
 
-        // Set sane defaults on first launch
         if UserDefaults.standard.object(forKey: Self.enabledKey) == nil {
             UserDefaults.standard.set(true, forKey: Self.enabledKey)
         }
         if UserDefaults.standard.object(forKey: Self.captureEnabledKey) == nil {
             UserDefaults.standard.set(true, forKey: Self.captureEnabledKey)
-        }
-        if UserDefaults.standard.object(forKey: Self.injectionEnabledKey) == nil {
-            UserDefaults.standard.set(true, forKey: Self.injectionEnabledKey)
         }
         if UserDefaults.standard.object(forKey: Self.distillationEnabledKey) == nil {
             UserDefaults.standard.set(false, forKey: Self.distillationEnabledKey)
@@ -133,45 +119,18 @@ class MemorableAddOn: TinkerAddOn {
     // MARK: - TinkerAddOn
 
     var systemPromptContent: String? {
-        guard isEnabled && injectionEnabled else { return nil }
-
-        var sections: [String] = []
-
-        if !preferencesContent.isEmpty {
-            sections.append("--- PREFERENCES ---\n\(preferencesContent)")
-        }
-        if !personaContent.isEmpty {
-            sections.append("--- PERSONA ---\n\(personaContent)")
-        }
-        if !episodicContent.isEmpty {
-            sections.append("--- EPISODIC CONTEXT (last 5 days) ---\n\(episodicContent)")
-        }
-        if !semanticContent.isEmpty {
-            sections.append("--- KNOWLEDGE ---\n\(semanticContent)")
-        }
-
-        guard !sections.isEmpty else { return nil }
-        return sections.joined(separator: "\n\n")
+        // Memorable doesn't inject into the system prompt.
+        // Identity comes from Familiar. Memory (episodic, semantic, working)
+        // is read actively by Claude at session start.
+        return nil
     }
 
     // MARK: - File Operations
 
     func reloadFiles() {
-        preferencesContent = readFile(at: preferencesPath)
-        personaContent = readFile(at: personaPath)
         episodicContent = readFile(at: episodicPath)
         semanticContent = readFile(at: semanticPath)
         updateWorkingStats()
-    }
-
-    func savePreferences(_ content: String) {
-        writeFile(content, at: preferencesPath)
-        preferencesContent = content
-    }
-
-    func savePersona(_ content: String) {
-        writeFile(content, at: personaPath)
-        personaContent = content
     }
 
     func updateWorkingStats() {
@@ -184,14 +143,13 @@ class MemorableAddOn: TinkerAddOn {
 
     private func ensureDirectoryStructure() {
         let fm = FileManager.default
-        let dirs = [directory, seedsDirectory, workingDirectory]
+        let dirs = [directory, workingDirectory]
         for dir in dirs {
             if !fm.fileExists(atPath: dir) {
                 try? fm.createDirectory(atPath: dir, withIntermediateDirectories: true)
             }
         }
 
-        // Create semantic.md with immutable section if it doesn't exist
         if !fm.fileExists(atPath: semanticPath) {
             let template = """
             # Semantic Memory

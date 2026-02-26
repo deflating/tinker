@@ -355,10 +355,8 @@ var onResultReceived: ((ResultMessage) -> Void)?
 
         if subtype == "init" {
             if let initMessage = try? decoder.decode(InitSystemMessage.self, from: data) {
-                if currentSessionId == nil || currentSessionId != initMessage.sessionId {
-                    currentSessionId = initMessage.sessionId
-                    onSessionIdEstablished?(initMessage.sessionId)
-                }
+                currentSessionId = initMessage.sessionId
+                onSessionIdEstablished?(initMessage.sessionId)
             }
         } else {
             // Result-type system message (success, error_max_turns, etc.)

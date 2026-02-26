@@ -18,7 +18,6 @@
 		A1000000D /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000D /* Session.swift */; };
 		A1000000E /* SessionSidebar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000E /* SessionSidebar.swift */; };
 		A1000000F /* Sen-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A2000000F /* Sen-Regular.ttf */; };
-		A1000000U /* USearch in Frameworks */ = {isa = PBXBuildFile; productRef = B1000000U /* USearch */; };
 		A10000010 /* Sen-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A20000010 /* Sen-Bold.ttf */; };
 		A10000011 /* Sen-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A20000011 /* Sen-ExtraBold.ttf */; };
 		A10000012 /* SlashCommandMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000013 /* SlashCommandMenu.swift */; };
@@ -125,7 +124,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				A1000000C /* ClaudeCodeSDK in Frameworks */,
-				A1000000U /* USearch in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -290,7 +288,6 @@
 			name = Tinker;
 			packageProductDependencies = (
 				B1000000P /* ClaudeCodeSDK */,
-				B1000000U /* USearch */,
 			);
 			productName = Tinker;
 			productReference = A3000000P /* Tinker.app */;
@@ -317,7 +314,6 @@
 			mainGroup = A5000000R;
 			packageReferences = (
 				B0000000P /* XCRemoteSwiftPackageReference "ClaudeCodeSDK" */,
-				B0000000U /* XCRemoteSwiftPackageReference "usearch" */,
 			);
 			productRefGroup = A5000000Q /* Products */;
 			projectDirPath = "";
@@ -538,14 +534,6 @@
 				version = 1.2.4;
 			};
 		};
-		B0000000U /* XCRemoteSwiftPackageReference "usearch" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/unum-cloud/usearch";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.0;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -553,11 +541,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B0000000P /* XCRemoteSwiftPackageReference "ClaudeCodeSDK" */;
 			productName = ClaudeCodeSDK;
-		};
-		B1000000U /* USearch */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B0000000U /* XCRemoteSwiftPackageReference "usearch" */;
-			productName = USearch;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
