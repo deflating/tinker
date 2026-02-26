@@ -6,8 +6,9 @@ import AppKit
 struct TinkerApp: App {
     init() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
-        // Set accent color to warm peach/apricot
         NSApplication.shared.effectiveAppearance.performAsCurrentDrawingAppearance {}
+        print(">>> TINKER INIT — calling iCloud setup")
+        iCloudSyncService.shared.setup()
     }
 
     /// Signature accent color — user-configurable, appearance-aware
@@ -185,9 +186,6 @@ struct TinkerApp: App {
             }
         }
 
-        Settings {
-            SettingsView()
-        }
 
         MenuBarExtra("Tinker", image: "MenuBarIcon") {
             Button("New Session") {

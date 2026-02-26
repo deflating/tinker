@@ -52,6 +52,7 @@ class ChatViewModel {
     // Lean transcript logger
     private let transcriptLogger = TranscriptLogger()
     private let titleGenerator = SessionTitleGenerator.shared
+    private var memorableWriter: WorkingMemoryWriter { MemorableAddOn.shared.writer }
 
     // Token usage & cost tracking (delegated from runner)
     var lastInputTokens: Int { commandRunner.lastInputTokens }
@@ -115,6 +116,9 @@ class ChatViewModel {
                 model: self.selectedModel,
                 workingDirectory: self.workingDirectory
             )
+            if MemorableAddOn.shared.captureEnabled {
+                self.memorableWriter.startSession(id: sessionId)
+            }
             if var session = self.currentSession,
                let idx = self.sessions.firstIndex(where: { $0.id == session.id }) {
                 session.cliSessionId = sessionId
@@ -139,6 +143,9 @@ class ChatViewModel {
             switch type {
             case .toolUse:
                 self.transcriptLogger.logToolUse(name: toolName ?? "unknown", input: content)
+                if MemorableAddOn.shared.captureEnabled {
+                    self.memorableWriter.logToolUse(name: toolName ?? "unknown", target: nil)
+                }
             case .toolResult:
                 self.transcriptLogger.logToolResult(name: toolName, content: content, isError: false)
             case .toolError:
@@ -170,6 +177,9 @@ class ChatViewModel {
         commandRunner.onComplete = { [weak self] content in
             guard let self else { return }
             self.transcriptLogger.logAssistantMessage(content)
+            if MemorableAddOn.shared.captureEnabled {
+                self.memorableWriter.logAssistantMessage(content)
+            }
             self.autoSave()
             self.sendCompletionNotificationIfNeeded(content: content)
             SessionServer.shared.broadcastState(isLoading: false, runState: self.runState.displayLabel)
@@ -290,6 +300,9 @@ class ChatViewModel {
         messages.append(userMsg)
         SessionServer.shared.broadcastMessage(userMsg)
         transcriptLogger.logUserMessage(trimmed)
+        if MemorableAddOn.shared.captureEnabled {
+            memorableWriter.logUserMessage(trimmed)
+        }
         error = nil
 
         // Update session metadata
@@ -318,8 +331,14 @@ class ChatViewModel {
             isComplete: false
         ))
 
+        // On first message of a session, prepend Memorable's "go read" instruction
+        var prompt = trimmed
+        if currentSessionId == nil, let prefix = MemorableAddOn.shared.firstMessagePrefix {
+            prompt = prefix + trimmed
+        }
+
         commandRunner.run(
-            prompt: trimmed,
+            prompt: prompt,
             sessionId: currentSessionId,
             model: selectedModel,
             messageId: assistantId,

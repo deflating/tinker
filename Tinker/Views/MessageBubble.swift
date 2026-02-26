@@ -196,10 +196,14 @@ private struct MarkdownContentView: View {
                         .padding(.horizontal, 10)
                         .padding(.top, 6)
 
-                        Text(code)
-                            .font(.system(size: 12, design: .monospaced))
-                            .textSelection(.enabled)
-                            .padding(.init(top: 2, leading: 10, bottom: 8, trailing: 10))
+                        ScrollView {
+                            Text(code)
+                                .font(.system(size: 12, design: .monospaced))
+                                .textSelection(.enabled)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        .frame(maxHeight: 500)
+                        .padding(.init(top: 2, leading: 10, bottom: 8, trailing: 10))
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Color(nsColor: .textBackgroundColor).opacity(0.5))
@@ -310,7 +314,7 @@ private struct DiffContentView: View {
             }
         }
         .textSelection(.enabled)
-        .frame(maxHeight: 400)
+        .frame(maxHeight: 500)
     }
 
     private func color(for kind: DiffLine.Kind) -> Color {
@@ -383,13 +387,16 @@ private struct ToolDisclosureView: View {
                         .padding(.horizontal, 8)
                         .padding(.bottom, 8)
                 } else {
-                    Text(content)
-                        .font(.system(size: 12, design: .monospaced))
-                        .foregroundStyle(.secondary)
-                        .textSelection(.enabled)
-                        .padding(.horizontal, 8)
-                        .padding(.bottom, 8)
-                        .frame(maxHeight: 300)
+                    ScrollView {
+                        Text(content)
+                            .font(.system(size: 12, design: .monospaced))
+                            .foregroundStyle(.secondary)
+                            .textSelection(.enabled)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .frame(maxHeight: 500)
+                    .padding(.horizontal, 8)
+                    .padding(.bottom, 8)
                 }
             }
         }
@@ -626,17 +633,20 @@ private struct ToolGroupItemView: View {
                             .textSelection(.enabled)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
-                    .frame(maxHeight: 400)
+                    .frame(maxHeight: 500)
                     .padding(.leading, 14)
                     .padding(.top, 4)
                 } else {
-                    Text(message.content)
-                        .font(.system(size: 11, design: .monospaced))
-                        .foregroundStyle(.secondary)
-                        .textSelection(.enabled)
-                        .padding(.leading, 14)
-                        .padding(.top, 2)
-                        .frame(maxHeight: 200)
+                    ScrollView {
+                        Text(message.content)
+                            .font(.system(size: 11, design: .monospaced))
+                            .foregroundStyle(.secondary)
+                            .textSelection(.enabled)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .frame(maxHeight: 500)
+                    .padding(.leading, 14)
+                    .padding(.top, 2)
                 }
             }
         }

@@ -1,0 +1,1800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Familiar &mdash; Preferences</title>
+<style>
+  :root {
+    --bg: #faf8f5;
+    --surface: #f0ece6;
+    --surface2: #e8e2da;
+    --border: #d4cdc4;
+    --text: #3d3630;
+    --text2: #7a7068;
+    --text3: #9e9488;
+    --accent: #8b6f4e;
+    --accent-dim: rgba(139, 111, 78, 0.12);
+    --warn: #b5704e;
+    --warn-dim: rgba(181, 112, 78, 0.12);
+    --radius: 8px;
+    --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+    --mono: 'SF Mono', 'Menlo', 'Monaco', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    font-size: 14px;
+  }
+
+  .app {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .controls {
+    overflow-y: auto;
+    padding: 32px;
+    border-right: 1px solid var(--border);
+  }
+
+  .controls::-webkit-scrollbar { width: 6px; }
+  .controls::-webkit-scrollbar-track { background: transparent; }
+  .controls::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.3px; }
+
+  .subtitle { color: var(--text2); font-size: 13px; margin-bottom: 8px; }
+
+  .top-actions {
+    display: flex; gap: 8px; margin-bottom: 20px;
+  }
+
+  /* Quick Setup Bar */
+  .quick-setup {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 24px;
+  }
+  .quick-setup-label {
+    font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px;
+    color: var(--accent); margin-bottom: 12px;
+  }
+  .quick-setup-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  }
+  .quick-setup-item label {
+    display: block; font-size: 11px; color: var(--text3); margin-bottom: 3px;
+  }
+  .quick-setup-cx {
+    grid-column: 1 / -1; margin-top: 4px;
+  }
+  .quick-setup-cx label {
+    display: block; font-size: 11px; color: var(--text3); margin-bottom: 3px;
+  }
+  .quick-setup-cx input {
+    width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius);
+    color: var(--text); font-family: var(--font); font-size: 12px; padding: 6px 8px; outline: none;
+  }
+  .quick-setup-cx input:focus { border-color: var(--accent); }
+
+  /* Sections */
+  .section { margin-bottom: 24px; }
+
+  .section-title {
+    font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px;
+    color: var(--text3); margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border);
+    cursor: pointer; user-select: none;
+  }
+  .section-title::before {
+    content: ''; display: inline-block; width: 0; height: 0;
+    border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid var(--text3);
+    margin-right: 8px; vertical-align: middle; transition: transform 0.15s;
+  }
+  .section.collapsed .section-title::before { transform: rotate(-90deg); }
+  .section.collapsed .section-body { display: none; }
+  .section.hidden { display: none; }
+
+  /* Fields */
+  .field { margin-bottom: 16px; }
+  .field-label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 4px; color: var(--text); }
+  .field .hint { font-size: 11px; color: var(--text3); margin-bottom: 6px; line-height: 1.4; }
+
+  /* Segmented Control */
+  .seg-control {
+    display: inline-flex; flex-wrap: wrap; gap: 0; border-radius: 6px; overflow: hidden;
+    border: 1px solid var(--border); background: var(--surface);
+  }
+  .seg-btn {
+    padding: 6px 12px; font-size: 12px; font-family: var(--font); font-weight: 400;
+    background: transparent; border: none; color: var(--text2); cursor: pointer;
+    transition: all 0.15s; border-right: 1px solid var(--border); white-space: nowrap;
+  }
+  .seg-btn:last-child { border-right: none; }
+  .seg-btn:hover { color: var(--text); background: var(--surface2); }
+  .seg-btn.active {
+    background: var(--accent); color: #fff; font-weight: 500;
+  }
+  .seg-btn.is-default { }
+  .seg-btn.custom-btn { color: var(--text3); font-style: italic; }
+  .seg-btn.custom-btn.active { font-style: normal; }
+
+  /* Custom value input row */
+  .custom-value-row {
+    display: none; margin-top: 6px;
+  }
+  .custom-value-row.show { display: flex; gap: 6px; align-items: center; }
+  .custom-value-row input {
+    flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text); font-family: var(--font); font-size: 12px; padding: 5px 8px; outline: none;
+  }
+  .custom-value-row input:focus { border-color: var(--accent); }
+  .custom-value-row input::placeholder { color: var(--text3); font-style: italic; }
+
+  /* Compact segmented for quick setup */
+  .seg-compact .seg-btn { padding: 4px 8px; font-size: 11px; }
+
+  /* Toggle pill (multi-select) */
+  .toggle-group { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 4px; }
+  .toggle-pill {
+    display: inline-flex; align-items: center; padding: 5px 10px; font-size: 12px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+    cursor: pointer; transition: all 0.15s; user-select: none; color: var(--text2);
+  }
+  .toggle-pill.active { background: var(--accent-dim); border-color: var(--accent); color: var(--text); }
+  .toggle-pill:hover { border-color: var(--text3); }
+  .toggle-pill.custom-pill { font-style: italic; color: var(--text3); }
+  .toggle-pill.custom-pill.active { font-style: normal; }
+
+  /* Toggle switch */
+  .toggle-switch {
+    display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;
+  }
+  .toggle-track {
+    width: 36px; height: 20px; border-radius: 10px; background: var(--surface2);
+    border: 1px solid var(--border); position: relative; transition: all 0.2s;
+  }
+  .toggle-track::after {
+    content: ''; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px;
+    border-radius: 50%; background: var(--text3); transition: all 0.2s;
+  }
+  .toggle-switch.active .toggle-track { background: var(--accent-dim); border-color: var(--accent); }
+  .toggle-switch.active .toggle-track::after { left: 18px; background: var(--accent); }
+  .toggle-switch-label { font-size: 13px; font-weight: 500; }
+
+  /* Context notes */
+  .context-note {
+    font-size: 11px; color: var(--text3); background: var(--surface); border-left: 2px solid var(--border);
+    padding: 6px 10px; margin-top: 6px; margin-bottom: 8px; border-radius: 0 4px 4px 0; line-height: 1.4;
+  }
+  .context-note.warn { border-left-color: var(--warn); color: var(--warn); }
+
+  /* Master toggle bar */
+  .master-toggle {
+    display: flex; align-items: center; gap: 12px; padding: 10px 14px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    margin-bottom: 12px;
+  }
+  .master-toggle .toggle-switch-label { font-size: 12px; }
+
+  /* Accessibility subsection */
+  .a11y-sub { margin-bottom: 14px; }
+  .a11y-sub-title { font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 6px; }
+
+  /* Show all toggle */
+  .show-all-bar {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 16px;
+  }
+
+  /* Free text */
+  input[type="text"], textarea.control-textarea {
+    width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    color: var(--text); font-family: var(--font); font-size: 13px; padding: 8px 10px; outline: none;
+    transition: border-color 0.15s;
+  }
+  input[type="text"]:focus, textarea.control-textarea:focus { border-color: var(--accent); }
+  textarea.control-textarea { resize: vertical; min-height: 80px; font-size: 12px; line-height: 1.5; }
+
+  /* Use case checkboxes */
+  .usecase-group { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+
+  /* Preview panel */
+  .preview { display: flex; flex-direction: column; overflow: hidden; }
+  .preview-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 24px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+  }
+  .preview-header h2 { font-size: 14px; font-weight: 600; color: var(--text2); }
+  .preview-header-left { display: flex; align-items: center; gap: 16px; }
+  .preview-actions { display: flex; gap: 8px; }
+
+  .btn {
+    padding: 6px 14px; font-size: 12px; font-weight: 500; border-radius: 6px; cursor: pointer;
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+    transition: all 0.15s; font-family: var(--font);
+  }
+  .btn:hover { border-color: var(--text3); }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-small { padding: 4px 10px; font-size: 11px; }
+  .btn-warn { border-color: var(--warn); color: var(--warn); }
+  .btn-warn:hover { background: var(--warn-dim); }
+
+  .preview-content { flex: 1; overflow-y: auto; padding: 24px; position: relative; }
+  .preview-content::-webkit-scrollbar { width: 6px; }
+  .preview-content::-webkit-scrollbar-track { background: transparent; }
+  .preview-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  .preview-md {
+    font-family: var(--mono); font-size: 12px; line-height: 1.7; white-space: pre-wrap;
+    color: var(--text); tab-size: 2;
+  }
+
+  /* Editor textarea */
+  #editorTextarea {
+    width: 100%; height: 100%; resize: none; border: none; background: transparent;
+    font-family: var(--mono); font-size: 12px; line-height: 1.7; color: var(--text);
+    outline: none; padding: 0;
+  }
+
+  /* Rendered preview */
+  .rendered-preview h2 {
+    font-size: 16px; font-weight: 600; margin: 20px 0 8px; color: var(--text);
+    border-bottom: 1px solid var(--border); padding-bottom: 4px;
+  }
+  .rendered-preview h2:first-child { margin-top: 0; }
+  .rendered-preview h1 {
+    font-size: 20px; font-weight: 700; margin: 0 0 12px; color: var(--text);
+    border-bottom: 1px solid var(--border); padding-bottom: 6px;
+  }
+  .rendered-preview h3 {
+    font-size: 14px; font-weight: 600; margin: 16px 0 6px; color: var(--text);
+  }
+  .rendered-preview p { margin: 6px 0; line-height: 1.6; font-size: 13px; }
+  .rendered-preview ul { margin: 4px 0 8px 20px; font-size: 13px; line-height: 1.6; }
+  .rendered-preview li { margin: 2px 0; }
+  .rendered-preview em { font-style: italic; }
+  .rendered-preview strong { font-weight: 600; }
+
+  /* Preview mode toggle */
+  .preview-mode-toggle {
+    display: inline-flex; border-radius: 6px; overflow: hidden;
+    border: 1px solid var(--border); background: var(--surface);
+  }
+  .preview-mode-btn {
+    padding: 3px 10px; font-size: 11px; font-family: var(--font); font-weight: 400;
+    background: transparent; border: none; color: var(--text2); cursor: pointer;
+    transition: all 0.15s; border-right: 1px solid var(--border);
+  }
+  .preview-mode-btn:last-child { border-right: none; }
+  .preview-mode-btn:hover { color: var(--text); background: var(--surface2); }
+  .preview-mode-btn.active { background: var(--accent); color: #fff; font-weight: 500; }
+
+  .toast {
+    position: fixed; bottom: 24px; right: 24px; background: var(--accent); color: #fff;
+    padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 500;
+    opacity: 0; transform: translateY(10px); transition: all 0.2s; pointer-events: none; z-index: 100;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  .import-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 50;
+    justify-content: center; align-items: center;
+  }
+  .import-overlay.show { display: flex; }
+  .import-box {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 24px; width: 540px; max-height: 80vh; display: flex; flex-direction: column; gap: 12px;
+  }
+  .import-box h3 { font-size: 16px; font-weight: 600; }
+  .import-box textarea { min-height: 200px; flex: 1; font-family: var(--mono); font-size: 12px;
+    width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius);
+    color: var(--text); padding: 8px 10px; outline: none; resize: vertical; line-height: 1.5;
+  }
+  .import-box textarea:focus { border-color: var(--accent); }
+
+  .tier2-control { display: none; }
+  .tier2-control.show { display: block; }
+
+  .disabled-section { opacity: 0.4; pointer-events: none; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="controls">
+    <h1>Familiar</h1>
+    <p class="subtitle">Configure your AI preferences. Live preview on the right.</p>
+    <div class="top-actions">
+      <button class="btn btn-small" onclick="showImport()">Import</button>
+      <button class="btn btn-small btn-warn" onclick="resetAll()">Reset</button>
+      <label class="show-all-bar" style="margin-left:auto; margin-bottom:0; font-size:11px; color:var(--text3); cursor:pointer;">
+        <span>Show all options</span>
+        <span class="toggle-track" id="showAllTrack" style="width:30px;height:16px;display:inline-block;position:relative;border-radius:8px;background:var(--surface2);border:1px solid var(--border);vertical-align:middle;margin-left:4px;transition:all 0.2s;">
+          <span style="position:absolute;top:2px;left:2px;width:10px;height:10px;border-radius:50%;background:var(--text3);transition:all 0.2s;" id="showAllKnob"></span>
+        </span>
+      </label>
+    </div>
+
+    <!-- QUICK SETUP BAR -->
+    <div class="quick-setup">
+      <div class="quick-setup-label">Quick Setup &mdash; adjust the rest in sections below</div>
+      <div class="quick-setup-grid">
+        <div class="quick-setup-item">
+          <label>Tone</label>
+          <div class="seg-control seg-compact" id="qs-C1"></div>
+        </div>
+        <div class="quick-setup-item">
+          <label>Length</label>
+          <div class="seg-control seg-compact" id="qs-F1"></div>
+        </div>
+        <div class="quick-setup-item">
+          <label>Format</label>
+          <div class="seg-control seg-compact" id="qs-F2"></div>
+        </div>
+        <div class="quick-setup-item">
+          <label>Markdown</label>
+          <div class="seg-control seg-compact" id="qs-F3"></div>
+        </div>
+        <div class="quick-setup-item">
+          <label>Knowledge</label>
+          <div class="seg-control seg-compact" id="qs-E1"></div>
+        </div>
+        <div class="quick-setup-item">
+          <label>Initiative</label>
+          <div class="seg-control seg-compact" id="qs-T1"></div>
+        </div>
+        <div class="quick-setup-cx">
+          <label>Custom Instructions</label>
+          <input type="text" id="qs-CX" placeholder="e.g. I prefer British English. I'm a nurse — medical detail is fine." maxlength="500" oninput="syncFromQuickSetup('CX')">
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 1: Communication Style -->
+    <div class="section" id="sec-comm">
+      <div class="section-title" onclick="toggleSection('sec-comm')">1. Communication Style</div>
+      <div class="section-body">
+        <div class="field">
+          <div class="field-label">C1. Tone</div>
+          <div class="seg-control" data-control="C1"></div>
+        </div>
+        <div class="field tier2-control">
+          <div class="field-label">C2. Directness</div>
+          <div class="seg-control" data-control="C2"></div>
+        </div>
+        <div class="field tier2-control">
+          <div class="field-label">C3. Honesty &amp; Pushback</div>
+          <div class="seg-control" data-control="C3"></div>
+        </div>
+        <div class="context-note tier2-control" id="note-C2C3">Directness (C2) controls <em>how</em> disagreement is delivered. Pushback (C3) controls <em>whether</em> it's raised at all. "Gentle + Push back directly" = issues flagged softly. "Blunt + Complete tasks, no opinions" = plain delivery, no editorializing.</div>
+      </div>
+    </div>
+
+    <!-- SECTION 2: Response Format -->
+    <div class="section" id="sec-format">
+      <div class="section-title" onclick="toggleSection('sec-format')">2. Response Format</div>
+      <div class="section-body">
+        <div class="field">
+          <div class="field-label">F1. Response Length</div>
+          <div class="seg-control" data-control="F1"></div>
+        </div>
+        <div class="field">
+          <div class="field-label">F2. Format Style</div>
+          <div class="seg-control" data-control="F2"></div>
+        </div>
+        <div class="field">
+          <div class="field-label">F3. Markdown Output</div>
+          <div class="seg-control" data-control="F3"></div>
+        </div>
+        <div class="field tier2-control">
+          <div class="field-label">F4. Preamble Suppression</div>
+          <div class="hint">Skips filler openers like "Great question!" — defaults to ON and always emits its instruction.</div>
+          <div class="toggle-switch active" data-control="F4" onclick="toggleSwitch(this)">
+            <div class="toggle-track"></div>
+            <div class="toggle-switch-label">Suppress preamble</div>
+          </div>
+        </div>
+        <div class="field tier2-control">
+          <div class="field-label">F5. Caveat &amp; Disclaimer Density</div>
+          <div class="seg-control" data-control="F5"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 3: Expertise & Depth -->
+    <div class="section" id="sec-expertise">
+      <div class="section-title" onclick="toggleSection('sec-expertise')">3. Expertise &amp; Depth</div>
+      <div class="section-body">
+        <div class="field">
+          <div class="field-label">E1. Assumed Knowledge Level</div>
+          <div class="seg-control" data-control="E1"></div>
+        </div>
+        <div class="field tier2-control">
+          <div class="field-label">E2. Reasoning Visibility</div>
+          <div class="seg-control" data-control="E2"></div>
+        </div>
+        <div class="field tier2-control">
+          <div class="field-label">E3. Abstraction Level</div>
+          <div class="seg-control" data-control="E3"></div>
+        </div>
+        <div class="field tier2-control">
+          <div class="field-label">E4. Confidence Signaling</div>
+          <div class="seg-control" data-control="E4"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 4: Personality & Affect -->
+    <div class="section collapsed" id="sec-personality">
+      <div class="section-title" onclick="toggleSection('sec-personality')">4. Personality &amp; Affect</div>
+      <div class="section-body">
+        <div class="field">
+          <div class="field-label">P0. Humor</div>
+          <div class="seg-control" data-control="P0"></div>
+          <div class="context-note" id="note-A2P0" style="display:none;">Literal language mode is active (A2). Humor (especially wit and sarcasm) may conflict. Consider setting Humor to "Serious".</div>
+        </div>
+        <div class="field">
+          <div class="field-label">P1. Warmth</div>
+          <div class="seg-control" data-control="P1"></div>
+        </div>
+        <div class="field">
+          <div class="field-label">P2. Empathy Display</div>
+          <div class="seg-control" data-control="P2"></div>
+          <div class="context-note">When-Stressed settings (P3) act as an [OVERRIDE] of this setting when stress signals are detected.</div>
+        </div>
+        <div class="field">
+          <div class="field-label">P3. When I'm Stressed or Low</div>
+          <div class="hint">[OVERRIDE: When detected, these supersede Empathy Display (P2).]</div>
+          <div class="toggle-group" data-control="P3"></div>
+        </div>
+        <div class="field">
+          <div class="field-label">P4. Praise Style</div>
+          <div class="seg-control" data-control="P4"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 5: Task Behavior -->
+    <div class="section collapsed" id="sec-task">
+      <div class="section-title" onclick="toggleSection('sec-task')">5. Task Behavior</div>
+      <div class="section-body">
+        <div class="field">
+          <div class="field-label">T1. Initiative Level</div>
+          <div class="seg-control" data-control="T1"></div>
+        </div>
+        <div class="field">
+          <div class="field-label">T2. Scope Interpretation</div>
+          <div class="seg-control" data-control="T2"></div>
+        </div>
+        <div class="field">
+          <div class="field-label">T3. Ambiguity Handling</div>
+          <div class="seg-control" data-control="T3"></div>
+        </div>
+        <div class="field">
+          <div class="field-label">T4. Follow-Up Questions</div>
+          <div class="seg-control" data-control="T4"></div>
+        </div>
+        <div class="field">
+          <div class="field-label">T5. Recommendation Style</div>
+          <div class="seg-control" data-control="T5"></div>
+        </div>
+        <div class="field">
+          <div class="field-label">T6. Error &amp; Correction Handling</div>
+          <div class="seg-control" data-control="T6"></div>
+        </div>
+        <div class="context-note" id="note-T1T4" style="display:none;">Highly proactive mode combined with no follow-up questions means the assistant will surface implications and next steps without asking. This is a valid power-user configuration.</div>
+      </div>
+    </div>
+
+    <!-- SECTION 6: Accessibility -->
+    <div class="section collapsed" id="sec-a11y">
+      <div class="section-title" onclick="toggleSection('sec-a11y')">6. Accessibility Accommodations</div>
+      <div class="section-body">
+        <div class="master-toggle">
+          <div class="toggle-switch" id="a11yMaster" onclick="toggleA11yMaster(this)">
+            <div class="toggle-track"></div>
+            <div class="toggle-switch-label">Enable accessibility accommodations</div>
+          </div>
+        </div>
+        <div class="context-note" id="note-a11y-override" style="display:none;">Accessibility instructions override conflicting format and style settings. For example: if you've set "Always prose" but enable "Numbered steps for all multi-part content", numbered steps will be used for multi-part content.</div>
+        <div id="a11y-body" class="disabled-section">
+          <div class="a11y-sub">
+            <div class="a11y-sub-title">A1. ADHD Support</div>
+            <div class="toggle-group" data-control="A1"></div>
+          </div>
+          <div class="a11y-sub">
+            <div class="a11y-sub-title">A2. Autism Spectrum Preferences</div>
+            <div class="toggle-group" data-control="A2"></div>
+          </div>
+          <div class="a11y-sub">
+            <div class="a11y-sub-title">A3. Dyslexia &amp; Reading Ease</div>
+            <div class="toggle-group" data-control="A3"></div>
+          </div>
+          <div class="a11y-sub">
+            <div class="a11y-sub-title">A4. Anxiety &amp; Overwhelm Management</div>
+            <div class="toggle-group" data-control="A4"></div>
+          </div>
+          <div class="a11y-sub">
+            <div class="a11y-sub-title">A5. Output Format for Accessibility</div>
+            <div class="seg-control" data-control="A5"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 7: Technical Style -->
+    <div class="section collapsed hidden" id="sec-tech">
+      <div class="section-title" onclick="toggleSection('sec-tech')">7. Technical Style</div>
+      <div class="section-body">
+        <div class="field">
+          <div class="field-label">Tech1. Languages / Frameworks</div>
+          <input type="text" data-control="Tech1" placeholder="e.g. TypeScript, React, Python, Swift" oninput="updatePreview()">
+        </div>
+        <div class="field">
+          <div class="field-label">Tech2. Code Quality Target</div>
+          <div class="seg-control" data-control="Tech2"></div>
+        </div>
+        <div class="field">
+          <div class="field-label">Tech3. Code Preferences</div>
+          <div class="toggle-group" data-control="Tech3"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 8: Custom Instructions -->
+    <div class="section" id="sec-custom">
+      <div class="section-title" onclick="toggleSection('sec-custom')">8. Custom Instructions</div>
+      <div class="section-body">
+        <div class="field">
+          <div class="hint">Anything else the AI should know. Takes precedence over panel defaults where it conflicts.</div>
+          <textarea class="control-textarea" data-control="CX" id="main-CX" maxlength="500" placeholder="e.g. 'I work odd hours — don't comment on timestamps.' 'I prefer British English.' 'I'm a nurse, not a layperson — medical detail is fine.'" oninput="syncFromMain('CX'); updatePreview()"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Use case selector for Tech section visibility -->
+    <div style="margin-top: 8px; margin-bottom: 16px;">
+      <div class="field-label" style="font-size:11px; color:var(--text3); margin-bottom:4px;">Use case includes coding?</div>
+      <div class="toggle-switch" id="codingToggle" onclick="toggleCoding(this)">
+        <div class="toggle-track"></div>
+        <div class="toggle-switch-label" style="font-size:12px;">Show Technical Style section</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PREVIEW PANEL -->
+  <div class="preview">
+    <div class="preview-header">
+      <div class="preview-header-left">
+        <h2>preferences.md</h2>
+        <div class="preview-mode-toggle">
+          <button class="preview-mode-btn active" id="modeEditorBtn" onclick="setPreviewMode('editor')">Editor</button>
+          <button class="preview-mode-btn" id="modePreviewBtn" onclick="setPreviewMode('preview')">Preview</button>
+        </div>
+      </div>
+      <div class="preview-actions">
+        <button class="btn btn-small" onclick="copyPreview()">Copy</button>
+        <button class="btn btn-small" onclick="downloadPreview()">Download</button>
+      </div>
+    </div>
+    <div class="preview-content">
+      <textarea id="editorTextarea" spellcheck="false"></textarea>
+      <div class="rendered-preview" id="renderedPreview" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Import overlay -->
+<div class="import-overlay" id="importOverlay">
+  <div class="import-box">
+    <h3>Import preferences.md</h3>
+    <p style="font-size:12px; color:var(--text2);">Paste a previously exported preferences.md file below.</p>
+    <textarea id="importText" placeholder="Paste your preferences.md here..."></textarea>
+    <div style="display:flex; gap:8px; justify-content:flex-end;">
+      <button class="btn btn-small" onclick="hideImport()">Cancel</button>
+      <button class="btn btn-small btn-primary" onclick="doImport()">Import</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Control Definitions ──────────────────────────────────────────────────
+
+const CONTROLS = {
+  C1: {
+    type: 'seg', section: 'Communication',
+    options: ['Formal','Professional','Neutral','Conversational','Casual'],
+    defaultVal: 'Neutral',
+    instructions: {
+      'Formal': 'Use formal, polished language throughout. Maintain professional register. Avoid contractions and colloquialisms.',
+      'Professional': 'Use clear, professional language. Polished but not stiff. Contractions are fine.',
+      'Neutral': 'Use plain, clear language with no strong register. Neither formal nor casual.',
+      'Conversational': 'Use a warm, conversational register. Contractions and informal phrasing are welcome.',
+      'Casual': 'Be casual and relaxed. Write the way people actually talk. Informal phrasing and contractions throughout.'
+    }
+  },
+  C2: {
+    type: 'seg', section: 'Communication',
+    options: ['Gentle','Direct','Blunt'],
+    defaultVal: 'Direct',
+    instructions: {
+      'Gentle': 'Be gentle in delivery. Soften criticism. Use tentative language when disagreeing. Lead with the positive.',
+      'Direct': 'State conclusions plainly. No unnecessary softening, but also no harshness.',
+      'Blunt': 'Be blunt and direct. State conclusions plainly without softening language, even if it feels abrupt.'
+    }
+  },
+  C3: {
+    type: 'seg', section: 'Communication',
+    options: ['Agree with everything','Complete tasks, no opinions','Soft nudge','Push back directly','Actively challenge'],
+    defaultVal: 'Push back directly',
+    instructions: {
+      'Agree with everything': 'Do not express disagreement with the user\'s stated approach, conclusions, or preferences. Complete tasks as given. Affirm the user\'s framing.',
+      'Complete tasks, no opinions': 'Execute requests without adding opinions, disagreement, or editorializing. Deliver results; do not evaluate the user\'s choices.',
+      'Soft nudge': 'If you see a significant problem with the user\'s approach, mention it once briefly and non-intrusively, then proceed with the request.',
+      'Push back directly': 'State disagreements clearly and directly when you have them. Give the reason. Then proceed. Do not open responses with affirmations (\'Great point!\'). If the user pushes back on your position without new reasoning, maintain it and explain why.',
+      'Actively challenge': 'When the user states a position, steelman the strongest counterargument and share it if substantive. Function as a thinking partner who challenges as well as supports. Do not adjust your expressed views in response to social pressure alone.'
+    }
+  },
+  F1: {
+    type: 'seg', section: 'Response Format',
+    options: ['Terse','Concise','Balanced','Thorough','Exhaustive'],
+    defaultVal: 'Balanced',
+    instructions: {
+      'Terse': 'Respond in the minimum words needed. Omit preamble, summaries, and elaboration entirely.',
+      'Concise': 'Keep responses short and direct. Default to 1-3 sentences for simple questions. Don\'t pad.',
+      'Balanced': 'Match length to complexity. Brief questions get brief answers. Complex tasks get full treatment.',
+      'Thorough': 'Prefer comprehensive answers. Include relevant context, edge cases, and reasoning even when not explicitly requested.',
+      'Exhaustive': 'Be maximally comprehensive. Cover all angles, alternatives, and edge cases. Assume the user wants the full picture.'
+    }
+  },
+  F2: {
+    type: 'seg', section: 'Response Format',
+    options: ['Always prose','Prefer prose','AI judgment','Prefer structured','Always structured'],
+    defaultVal: 'AI judgment',
+    instructions: {
+      'Always prose': 'Write in flowing paragraphs. Do not use bullet points, numbered lists, or headers unless content is genuinely tabular or sequential.',
+      'Prefer prose': 'Default to prose. Use lists only when items are truly enumerable and parallel. Avoid bulleting for the sake of it.',
+      'AI judgment': 'Choose prose or structure based on content type. Use lists for genuinely list-like content, prose for explanation and reasoning. This is the default model behavior.',
+      'Prefer structured': 'Default to structured formatting with headers and bullets to aid scannability. Use prose for connective tissue only.',
+      'Always structured': 'Format all responses with headers and bullets. Break every topic into scannable components. Minimize prose paragraphs.'
+    }
+  },
+  F3: {
+    type: 'seg', section: 'Response Format',
+    options: ['Plain text','Auto','Always markdown'],
+    defaultVal: 'Auto',
+    instructions: {
+      'Plain text': 'Do not use markdown formatting. No bold, no headers, no code fences, no bullets. Write in plain text only.',
+      'Auto': 'Use markdown when it aids clarity (headers for long responses, code fences for code, bullets for lists). For short conversational replies, use plain text.',
+      'Always markdown': 'Use full markdown formatting throughout: headers for sections, bold for emphasis, code fences for all code, bullets for lists.'
+    }
+  },
+  F4: {
+    type: 'toggle', section: 'Response Format',
+    defaultVal: true,
+    instructionOn: 'Begin every response with substantive content immediately. Do not restate the question, acknowledge what you\'re about to do, or use filler openers like \'Great question!\', \'Certainly!\', \'Of course!\', \'Absolutely!\', or \'Sure!\'. Skip the throat-clearing.',
+    instructionOff: 'Conversational openers and preamble are acceptable.'
+  },
+  F5: {
+    type: 'seg', section: 'Response Format',
+    options: ['Minimal','Standard','Thorough'],
+    defaultVal: 'Standard',
+    instructions: {
+      'Minimal': 'Minimize caveats and disclaimers. Only include a disclaimer if the risk is genuinely serious and non-obvious. Do not lead responses with warnings.',
+      'Standard': 'Include standard caveats where appropriate for sensitive topics. Don\'t over-warn.',
+      'Thorough': 'Note relevant limitations, risks, and \'consult a professional\' recommendations for advice in medical, legal, financial, or safety-sensitive domains. Extend this caution to adjacent domains (mental health advice adjacent to medical, tax strategy adjacent to financial). Flag uncertainty even when you have a confident answer on the surface.'
+    }
+  },
+  E1: {
+    type: 'seg', section: 'Expertise & Depth',
+    options: ['Beginner','Developing','Intermediate','Advanced','Expert'],
+    defaultVal: 'Intermediate',
+    instructions: {
+      'Beginner': 'Assume no prior knowledge. Define all terms on first use. Use analogies. Avoid jargon. Build from fundamentals.',
+      'Developing': 'Assume familiarity with basics but explain intermediate terms. Don\'t assume domain fluency.',
+      'Intermediate': 'Assume solid foundational knowledge. Skip basics. Use standard terminology without defining it.',
+      'Advanced': 'Assume deep domain familiarity. Use technical vocabulary freely. Focus on nuance, tradeoffs, and non-obvious considerations.',
+      'Expert': 'Treat the user as a domain expert. Engage at a peer level. Use precise technical language. Don\'t simplify standard concepts.'
+    }
+  },
+  E2: {
+    type: 'seg', section: 'Expertise & Depth',
+    options: ['Conclusions only','Key steps','Full reasoning','Step-by-step'],
+    defaultVal: 'Key steps',
+    instructions: {
+      'Conclusions only': 'State conclusions directly. Do not walk through your reasoning unless asked.',
+      'Key steps': 'Briefly indicate the key reasoning steps that led to your conclusion, but don\'t belabor the process.',
+      'Full reasoning': 'Reason out loud before concluding. Show your thinking as flowing prose before stating the final answer.',
+      'Step-by-step': 'Number each step explicitly. Break any multi-part problem into discrete, labeled steps and work through them in sequence before concluding.'
+    }
+  },
+  E3: {
+    type: 'seg', section: 'Expertise & Depth',
+    options: ['Concrete & specific','Mixed','Theoretical & frameworks'],
+    defaultVal: 'Mixed',
+    instructions: {
+      'Concrete & specific': 'Default to tangible examples, real-world analogies, and step-by-step breakdowns. Avoid theoretical framing unless explicitly requested.',
+      'Mixed': 'Alternate between conceptual framing and concrete illustration, matching whichever the user\'s phrasing suggests they want.',
+      'Theoretical & frameworks': 'Lead with principles and models. Use examples only to clarify ambiguity. Prefer formal, conceptual exposition.'
+    }
+  },
+  E4: {
+    type: 'seg', section: 'Expertise & Depth',
+    options: ['No hedging','Calibrated','Always qualify','Explicit labels'],
+    defaultVal: 'Calibrated',
+    instructions: {
+      'No hedging': 'State answers directly without uncertainty qualifiers. Do not use \'I think\', \'I believe\', \'it seems\', or similar hedging. Be declarative.',
+      'Calibrated': 'Express uncertainty proportional to actual confidence. Use hedging language when genuinely uncertain; direct statements when confident.',
+      'Always qualify': 'Flag any information that may be incomplete, outdated, or uncertain. State assumptions explicitly.',
+      'Explicit labels': 'Explicitly label confidence levels on factual or predictive claims: \'High confidence\', \'Moderate confidence\', \'Uncertain\'. Make epistemic status visible.'
+    }
+  },
+  P0: {
+    type: 'seg', section: 'Personality & Affect',
+    options: ['Serious','Occasional wit','Playful'],
+    defaultVal: 'Occasional wit',
+    instructions: {
+      'Serious': 'Keep a serious, focused tone throughout. Avoid jokes, wordplay, or playful language.',
+      'Occasional wit': 'Occasional dry humor or wit is welcome when the tone invites it. Don\'t force it.',
+      'Playful': 'Be playful and use humor naturally. Wit, wordplay, and light banter are welcome.'
+    }
+  },
+  P1: {
+    type: 'seg', section: 'Personality & Affect',
+    options: ['Clinical','Reserved','Neutral','Warm','Highly personal'],
+    defaultVal: 'Neutral',
+    instructions: {
+      'Clinical': 'Maintain a strictly professional, impersonal tone. Omit social pleasantries, expressions of enthusiasm, and any language that implies personal regard.',
+      'Reserved': 'Be polite and clear without emotional coloring. Avoid both coldness and friendliness.',
+      'Neutral': 'Use a tone that is cordial and human without strong warmth. Occasional expressions of care are appropriate but not emphasized.',
+      'Warm': 'Engage with genuine friendliness. Show interest in the user\'s work. Use a conversational register and respond to emotional context.',
+      'Highly personal': 'Engage as a close, caring interlocutor. Match emotional tone, celebrate wins, acknowledge difficulties, treat the conversation as a genuine relationship.'
+    }
+  },
+  P2: {
+    type: 'seg', section: 'Personality & Affect',
+    options: ['Skip it','Acknowledge only','Reflect & validate','Full engagement'],
+    defaultVal: 'Acknowledge only',
+    instructions: {
+      'Skip it': 'Do not comment on or respond to emotional content in user messages. Proceed directly to the task.',
+      'Acknowledge only': 'When the user expresses frustration or difficulty, briefly acknowledge it in one sentence, then continue.',
+      'Reflect & validate': 'When emotional content is present, reflect back what the user seems to be experiencing and validate it before addressing the task.',
+      'Full engagement': 'Engage meaningfully with the emotional dimension of the conversation. Do not rush past emotional content to problem-solving.'
+    }
+  },
+  P3: {
+    type: 'pills', section: 'Personality & Affect',
+    options: [
+      'Acknowledge without fixing',
+      'No reframing or motivational language',
+      'Keep responses shorter',
+      'Name constraints honestly',
+      "Don't ask what's wrong",
+      "Give space, don't fill silence"
+    ],
+    defaultVal: [],
+    instructions: {
+      'Acknowledge without fixing': 'When the user seems stressed or low-energy, acknowledge it simply without trying to fix it.',
+      'No reframing or motivational language': "Don't reframe negative feelings as positives or offer motivational language when the user is struggling.",
+      'Keep responses shorter': 'Keep responses shorter than usual when the user seems overwhelmed.',
+      'Name constraints honestly': 'Name constraints and limitations honestly rather than spinning them positively.',
+      "Don't ask what's wrong": "Don't ask 'what's wrong?' or probe into why the user seems off.",
+      "Give space, don't fill silence": "Don't fill conversational silence with questions or suggestions."
+    }
+  },
+  P4: {
+    type: 'seg', section: 'Personality & Affect',
+    options: ['Never','Only genuine effort','Moderate','Frequent'],
+    defaultVal: 'Only genuine effort',
+    instructions: {
+      'Never': 'Do not offer praise, compliments, or positive reinforcement of any kind.',
+      'Only genuine effort': 'Reserve praise only for moments of evident effort or significant creative achievement. Do not praise routine exchanges or common questions.',
+      'Moderate': 'Offer sincere positive feedback when the user does something well. Do not praise neutral or routine interactions.',
+      'Frequent': 'Actively encourage the user. Acknowledge effort and good thinking. Create a supportive, affirming interaction environment.'
+    }
+  },
+  T1: {
+    type: 'seg', section: 'Task Behavior',
+    options: ['Wait for instructions','Mostly reactive','Balanced','Proactive','Highly proactive'],
+    defaultVal: 'Balanced',
+    instructions: {
+      'Wait for instructions': 'Only do exactly what is asked. Do not volunteer information, suggest alternatives, or raise issues not mentioned.',
+      'Mostly reactive': 'Complete the request, then mention one additional relevant consideration if it\'s clearly high-value.',
+      'Balanced': 'Complete the request and proactively flag significant issues, relevant context, or useful alternatives.',
+      'Proactive': 'Actively anticipate broader goals. Suggest next steps, identify unstated needs, raise issues even when not asked.',
+      'Highly proactive': 'Surface implications and risks when they are significant and not obvious. Actively identify the next logical step in the user\'s broader goal.'
+    }
+  },
+  T2: {
+    type: 'seg', section: 'Task Behavior',
+    options: ['Minimal','Literal','Reasonable','Expansive'],
+    defaultVal: 'Reasonable',
+    instructions: {
+      'Minimal': 'Do exactly what is asked and nothing more. Do not anticipate related needs or add unrequested features. Complete the stated task precisely.',
+      'Literal': 'Interpret requests literally. Do not infer implied needs beyond what is explicitly stated. Ask before expanding scope.',
+      'Reasonable': 'Interpret requests charitably. Complete the stated task and include closely related improvements the user would clearly want, but do not overreach.',
+      'Expansive': 'Interpret requests generously. Anticipate related needs and address them proactively. Solve the underlying problem, not just the stated request.'
+    }
+  },
+  T3: {
+    type: 'seg', section: 'Task Behavior',
+    options: ['Ask first','State assumption & proceed','Best guess silently','Attempt then ask'],
+    defaultVal: 'State assumption & proceed',
+    instructions: {
+      'Ask first': 'When a request is ambiguous, ask one focused clarifying question before proceeding. Do not guess at intent.',
+      'State assumption & proceed': "When a request is ambiguous, state the interpretation you're using, then proceed (e.g., 'I'm taking this to mean X — let me know if that's wrong'). Do not ask — make the assumption explicit.",
+      'Best guess silently': 'When a request is ambiguous, make a reasonable assumption and proceed without flagging it. Optimize for forward momentum.',
+      'Attempt then ask': 'Make a reasonable attempt at the most likely interpretation, then ask if it addressed what the user needed.'
+    }
+  },
+  T4: {
+    type: 'seg', section: 'Task Behavior',
+    options: ['Never','Only when blocked','One max per response','Ask freely'],
+    defaultVal: 'One max per response',
+    instructions: {
+      'Never': 'Do not ask follow-up questions. Complete the task with the information given. Make reasonable assumptions if needed.',
+      'Only when blocked': 'Only ask a follow-up if you cannot proceed at all without the answer. Otherwise make reasonable assumptions.',
+      'One max per response': 'Ask at most one follow-up question per response, and only if it would materially improve your answer. Never ask multiple questions in one response.',
+      'Ask freely': 'Ask follow-up questions whenever additional context would meaningfully improve your response.'
+    }
+  },
+  T5: {
+    type: 'seg', section: 'Task Behavior',
+    options: ['Options only','Lean toward recommending','Always recommend','Recommend + explain why others fall short'],
+    defaultVal: 'Lean toward recommending',
+    instructions: {
+      'Options only': 'When the user asks what to do, present 2-3 options with tradeoffs. Do not recommend one over others.',
+      'Lean toward recommending': 'Present options but indicate which you\'d suggest and why.',
+      'Always recommend': 'Give a direct recommendation. Mention alternatives only if asked.',
+      'Recommend + explain why others fall short': 'Give a direct recommendation and briefly explain why the alternatives are less suitable for this case.'
+    }
+  },
+  T6: {
+    type: 'seg', section: 'Task Behavior',
+    options: ['Silent','Acknowledge briefly','Explain what changed','Invite correction'],
+    defaultVal: 'Acknowledge briefly',
+    instructions: {
+      'Silent': 'If the user\'s request contains a factual error, silently correct it in your answer without calling attention. If you catch your own error mid-response, correct course without drawing attention.',
+      'Acknowledge briefly': 'When the user\'s request is based on a misconception, note the correction gently before answering. When correcting yourself, briefly note that you\'re updating your answer.',
+      'Explain what changed': 'When correcting user errors, explain why the original assumption was wrong. When self-correcting, state what you said before, what is correct, and why you got it wrong.',
+      'Invite correction': 'At the end of substantive responses, actively invite the user to correct you if anything seems off.'
+    }
+  },
+  A1: {
+    type: 'pills', section: 'Accessibility',
+    options: [
+      'Short paragraphs (3 sentences max)',
+      'Bold the most important sentence per section',
+      'Answer first, context after',
+      'Numbered steps for all multi-part content',
+      'End with a clear next action',
+      'Never leave responses open-ended'
+    ],
+    defaultVal: [],
+    instructions: {
+      'Short paragraphs (3 sentences max)': 'Keep every paragraph to 3 sentences or fewer.',
+      'Bold the most important sentence per section': 'Bold the single most important sentence in each section.',
+      'Answer first, context after': 'Begin every response with the direct answer. Context and caveats follow.',
+      'Numbered steps for all multi-part content': 'Present all multi-part content as numbered steps, even when not strictly sequential.',
+      'End with a clear next action': "End every response with a clearly labeled 'Next step:' section.",
+      'Never leave responses open-ended': 'Do not end responses with open-ended questions or unresolved options. Provide a recommendation.'
+    }
+  },
+  A2: {
+    type: 'pills', section: 'Accessibility',
+    options: [
+      'Literal, unambiguous language only',
+      'State all assumptions explicitly',
+      'No social filler phrases',
+      'Be explicit about confidence and uncertainty',
+      'Transition signals between topics',
+      'No rhetorical questions',
+      'State structure before explaining'
+    ],
+    defaultVal: [],
+    instructions: {
+      'Literal, unambiguous language only': 'Use only literal, unambiguous language. Avoid idioms, metaphors, sarcasm, and indirect phrasing.',
+      'State all assumptions explicitly': 'State all assumptions explicitly. Do not rely on implied common ground.',
+      'No social filler phrases': "Omit social filler phrases ('of course', 'as you probably know', etc.).",
+      'Be explicit about confidence and uncertainty': 'When uncertain, explicitly quantify confidence rather than using vague hedging language.',
+      'Transition signals between topics': "Use explicit transition markers when switching topics: 'Moving to X now...'",
+      'No rhetorical questions': 'Do not use rhetorical questions. If you want input, ask directly.',
+      'State structure before explaining': "Before a multi-part explanation, state its structure: 'I'll cover X, then Y, then Z.'"
+    }
+  },
+  A3: {
+    type: 'pills', section: 'Accessibility',
+    options: [
+      'Short sentences (under 20 words)',
+      'One idea per paragraph',
+      'Active voice',
+      'No double negatives',
+      'Common words over technical synonyms',
+      'Use lists for 3 or more items'
+    ],
+    defaultVal: [],
+    instructions: {
+      'Short sentences (under 20 words)': 'Keep sentences under 20 words.',
+      'One idea per paragraph': 'Limit each paragraph to a single idea.',
+      'Active voice': 'Use active voice constructions throughout.',
+      'No double negatives': 'Avoid double negatives and complex syntactic inversions.',
+      'Common words over technical synonyms': 'Prefer common, high-frequency words over technical synonyms unless precision requires otherwise.',
+      'Use lists for 3 or more items': 'Use lists for any content with 3 or more components.'
+    }
+  },
+  A4: {
+    type: 'pills', section: 'Accessibility',
+    options: [
+      'No urgency language',
+      'Max 3 options at a time',
+      'Recommendations, not option lists',
+      'No worst-case scenarios',
+      'Reassure when I express self-doubt'
+    ],
+    defaultVal: [],
+    instructions: {
+      'No urgency language': 'Avoid language implying urgency, time pressure, or that inaction has high stakes.',
+      'Max 3 options at a time': 'When presenting choices, offer at most 3 options. Pre-filter to the most suitable.',
+      'Recommendations, not option lists': 'When the user asks for help deciding, provide a direct recommendation with brief rationale rather than an exhaustive pros/cons list.',
+      'No worst-case scenarios': 'Do not mention worst-case scenarios or failure modes unless the user explicitly asks.',
+      'Reassure when I express self-doubt': 'When the user expresses self-doubt or uncertainty about their approach, provide calibrated reassurance if their approach is reasonable.'
+    }
+  },
+  A5: {
+    type: 'seg', section: 'Accessibility',
+    options: ['Standard','Low-stimulation','High-contrast','Voice-optimized'],
+    defaultVal: 'Standard',
+    instructions: {
+      'Standard': '',
+      'Low-stimulation': 'Use minimal formatting. Avoid bullets, headers, bold, italics, and emoji. Write in plain prose. Reduce visual complexity.',
+      'High-contrast': 'Use strong visual hierarchy — clear headers, bolded key terms, short bullets. Make the most important information visually prominent.',
+      'Voice-optimized': 'Do not use any markdown. Write in natural spoken language suitable for text-to-speech. Avoid all formatting that requires visual rendering.'
+    }
+  },
+  Tech1: {
+    type: 'text', section: 'Technical Style',
+    defaultVal: '',
+    instructionTemplate: 'The user primarily works with: {value}. Align examples, terminology, and default conventions to these.'
+  },
+  Tech2: {
+    type: 'seg', section: 'Technical Style',
+    options: ['Educational clarity','Balanced','Production-grade'],
+    defaultVal: 'Balanced',
+    instructions: {
+      'Educational clarity': 'Write code that is maximally readable and educational. Prefer explicit over implicit. Prioritize understanding over brevity, performance, or idiomatic style.',
+      'Balanced': 'Write clean, idiomatic code that is also readable. Balance real-world quality with clarity. Explain non-obvious choices.',
+      'Production-grade': 'Write production-grade code. Use proper error handling, type annotations, idiomatic patterns, and performance-appropriate approaches. Do not simplify for pedagogy.'
+    }
+  },
+  Tech3: {
+    type: 'pills', section: 'Technical Style',
+    options: [
+      'Prefer simple solutions',
+      'Avoid over-engineering',
+      'Explain tradeoffs',
+      'Prefer functional style',
+      'No unrequested features',
+      'No refactoring beyond what\'s asked',
+      'Minimal comments',
+      'Code examples over prose',
+      'Explain why, not just how'
+    ],
+    defaultVal: [],
+    instructions: {
+      'Prefer simple solutions': 'Prefer simple, straightforward solutions over clever or elegant ones.',
+      'Avoid over-engineering': "Don't over-engineer. Build for the current requirement, not hypothetical future ones.",
+      'Explain tradeoffs': 'Explain tradeoffs between approaches rather than just recommending one.',
+      'Prefer functional style': 'Prefer functional programming style when appropriate.',
+      'No unrequested features': "Don't add features, error handling, or abstractions beyond what was asked.",
+      'No refactoring beyond what\'s asked': "Don't refactor surrounding code when making targeted changes.",
+      'Minimal comments': 'Minimal code comments. The code should be self-evident.',
+      'Code examples over prose': 'Use code examples to explain concepts rather than prose descriptions.',
+      'Explain why, not just how': 'Explain the reasoning behind code decisions, not just the implementation.'
+    }
+  },
+  CX: {
+    type: 'textarea', section: 'Custom Instructions',
+    defaultVal: '',
+    instructionTemplate: 'Additional user context: {value}'
+  }
+};
+
+// ── State ────────────────────────────────────────────────────────────────
+
+const state = {};
+let showAllTier2 = false;
+let a11yEnabled = false;
+let codingEnabled = false;
+let manuallyEdited = false;
+let manualText = '';
+let previewMode = 'editor'; // 'editor' or 'preview'
+const customValues = {}; // controlId -> custom instruction text
+
+function initState() {
+  for (const [id, ctrl] of Object.entries(CONTROLS)) {
+    if (ctrl.type === 'pills') {
+      state[id] = [];
+    } else if (ctrl.type === 'toggle') {
+      state[id] = ctrl.defaultVal;
+    } else if (ctrl.type === 'text' || ctrl.type === 'textarea') {
+      state[id] = '';
+    } else {
+      state[id] = ctrl.defaultVal;
+    }
+  }
+}
+
+// ── Build UI ─────────────────────────────────────────────────────────────
+
+function buildSegmented(container, controlId, compact) {
+  const ctrl = CONTROLS[controlId];
+  container.innerHTML = '';
+  const isCustomActive = state[controlId] === '__custom__';
+
+  ctrl.options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'seg-btn' + (opt === state[controlId] ? ' active' : '');
+    btn.textContent = opt;
+    btn.onclick = () => {
+      state[controlId] = opt;
+      container.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      // Hide custom input row if exists
+      const row = container.parentElement.querySelector('.custom-value-row');
+      if (row) row.classList.remove('show');
+      syncControl(controlId);
+      updateContextNotes();
+      updatePreview();
+    };
+    container.appendChild(btn);
+  });
+
+  // Add "Custom..." button (skip for quick setup compact controls)
+  if (!compact) {
+    const customBtn = document.createElement('button');
+    customBtn.className = 'seg-btn custom-btn' + (isCustomActive ? ' active' : '');
+    customBtn.textContent = 'Custom\u2026';
+    customBtn.onclick = () => {
+      state[controlId] = '__custom__';
+      container.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+      customBtn.classList.add('active');
+      const row = container.parentElement.querySelector('.custom-value-row');
+      if (row) {
+        row.classList.add('show');
+        row.querySelector('input').focus();
+      }
+      syncControl(controlId);
+      updateContextNotes();
+      updatePreview();
+    };
+    container.appendChild(customBtn);
+
+    // Add custom input row after the seg-control (as sibling in .field)
+    let row = container.parentElement.querySelector('.custom-value-row');
+    if (!row) {
+      row = document.createElement('div');
+      row.className = 'custom-value-row' + (isCustomActive ? ' show' : '');
+      row.innerHTML = '<input type="text" placeholder="Type your own instruction\u2026" value="' + escapeAttr(customValues[controlId] || '') + '">';
+      row.querySelector('input').oninput = function() {
+        customValues[controlId] = this.value;
+        updatePreview();
+      };
+      container.parentElement.appendChild(row);
+    }
+  }
+}
+
+function escapeAttr(s) {
+  return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+}
+
+function buildPills(container, controlId) {
+  const ctrl = CONTROLS[controlId];
+  container.innerHTML = '';
+  ctrl.options.forEach(opt => {
+    const pill = document.createElement('span');
+    pill.className = 'toggle-pill' + (state[controlId].includes(opt) ? ' active' : '');
+    pill.textContent = opt;
+    pill.onclick = () => {
+      const idx = state[controlId].indexOf(opt);
+      if (idx >= 0) { state[controlId].splice(idx, 1); pill.classList.remove('active'); }
+      else { state[controlId].push(opt); pill.classList.add('active'); }
+      updateContextNotes();
+      updatePreview();
+    };
+    container.appendChild(pill);
+  });
+
+  // Add "Custom..." pill
+  const hasCustom = state[controlId].includes('__custom__');
+  const customPill = document.createElement('span');
+  customPill.className = 'toggle-pill custom-pill' + (hasCustom ? ' active' : '');
+  customPill.textContent = 'Custom\u2026';
+  customPill.onclick = () => {
+    const idx = state[controlId].indexOf('__custom__');
+    if (idx >= 0) {
+      state[controlId].splice(idx, 1);
+      customPill.classList.remove('active');
+      const row = container.parentElement.querySelector('.custom-value-row');
+      if (row) row.classList.remove('show');
+    } else {
+      state[controlId].push('__custom__');
+      customPill.classList.add('active');
+      const row = container.parentElement.querySelector('.custom-value-row');
+      if (row) { row.classList.add('show'); row.querySelector('input').focus(); }
+    }
+    updateContextNotes();
+    updatePreview();
+  };
+  container.appendChild(customPill);
+
+  // Add custom input row
+  let row = container.parentElement.querySelector('.custom-value-row');
+  if (!row) {
+    row = document.createElement('div');
+    row.className = 'custom-value-row' + (hasCustom ? ' show' : '');
+    row.innerHTML = '<input type="text" placeholder="Type your own instruction\u2026" value="' + escapeAttr(customValues[controlId] || '') + '">';
+    row.querySelector('input').oninput = function() {
+      customValues[controlId] = this.value;
+      updatePreview();
+    };
+    container.parentElement.appendChild(row);
+  }
+}
+
+function buildAllControls() {
+  // Main panel segmented controls
+  document.querySelectorAll('.seg-control[data-control]').forEach(el => {
+    buildSegmented(el, el.dataset.control, false);
+  });
+  // Main panel pill groups
+  document.querySelectorAll('.toggle-group[data-control]').forEach(el => {
+    buildPills(el, el.dataset.control);
+  });
+  // Quick setup segmented controls
+  const qsControls = ['C1','F1','F2','F3','E1','T1'];
+  qsControls.forEach(id => {
+    const el = document.getElementById('qs-' + id);
+    if (el) buildSegmented(el, id, true);
+  });
+  // F4 toggle initial state
+  const f4toggle = document.querySelector('[data-control="F4"]');
+  if (f4toggle) {
+    if (state.F4) f4toggle.classList.add('active');
+    else f4toggle.classList.remove('active');
+  }
+}
+
+function syncControl(controlId) {
+  // Sync between quick setup and main panel
+  const qsControls = ['C1','F1','F2','F3','E1','T1'];
+  if (qsControls.includes(controlId)) {
+    // Update quick setup bar
+    const qsEl = document.getElementById('qs-' + controlId);
+    if (qsEl) {
+      qsEl.querySelectorAll('.seg-btn').forEach(b => {
+        b.classList.toggle('active', b.textContent === state[controlId]);
+      });
+    }
+    // Update main panel
+    const mainEl = document.querySelector('.seg-control[data-control="' + controlId + '"]');
+    if (mainEl) {
+      mainEl.querySelectorAll('.seg-btn').forEach(b => {
+        b.classList.toggle('active', b.textContent === state[controlId]);
+      });
+    }
+  }
+  if (controlId === 'CX') {
+    const mainCx = document.getElementById('main-CX');
+    const qsCx = document.getElementById('qs-CX');
+    if (mainCx) mainCx.value = state.CX;
+    if (qsCx) qsCx.value = state.CX;
+  }
+}
+
+function syncFromQuickSetup(controlId) {
+  if (controlId === 'CX') {
+    state.CX = document.getElementById('qs-CX').value;
+    document.getElementById('main-CX').value = state.CX;
+    updatePreview();
+  }
+}
+
+function syncFromMain(controlId) {
+  if (controlId === 'CX') {
+    state.CX = document.getElementById('main-CX').value;
+    document.getElementById('qs-CX').value = state.CX;
+  }
+}
+
+function toggleSwitch(el) {
+  const controlId = el.dataset.control;
+  state[controlId] = !state[controlId];
+  el.classList.toggle('active', state[controlId]);
+  updatePreview();
+}
+
+function toggleSection(id) {
+  document.getElementById(id).classList.toggle('collapsed');
+}
+
+function toggleA11yMaster(el) {
+  a11yEnabled = !a11yEnabled;
+  el.classList.toggle('active', a11yEnabled);
+  const body = document.getElementById('a11y-body');
+  body.classList.toggle('disabled-section', !a11yEnabled);
+  document.getElementById('note-a11y-override').style.display = a11yEnabled ? 'block' : 'none';
+  updateContextNotes();
+  updatePreview();
+}
+
+function toggleCoding(el) {
+  codingEnabled = !codingEnabled;
+  el.classList.toggle('active', codingEnabled);
+  document.getElementById('sec-tech').classList.toggle('hidden', !codingEnabled);
+  updatePreview();
+}
+
+// Show all tier 2
+document.querySelector('.show-all-bar').onclick = function() {
+  showAllTier2 = !showAllTier2;
+  const knob = document.getElementById('showAllKnob');
+  const track = document.getElementById('showAllTrack');
+  if (showAllTier2) {
+    knob.style.left = '16px';
+    knob.style.background = 'var(--accent)';
+    track.style.background = 'var(--accent-dim)';
+    track.style.borderColor = 'var(--accent)';
+  } else {
+    knob.style.left = '2px';
+    knob.style.background = 'var(--text3)';
+    track.style.background = 'var(--surface2)';
+    track.style.borderColor = 'var(--border)';
+  }
+  document.querySelectorAll('.tier2-control').forEach(el => {
+    el.classList.toggle('show', showAllTier2);
+  });
+};
+
+// ── Context Notes ────────────────────────────────────────────────────────
+
+function updateContextNotes() {
+  // C2/C3 note always visible when tier2 shown
+  // A2 literal + P0 humor
+  const a2Literal = state.A2 && state.A2.includes('Literal, unambiguous language only');
+  document.getElementById('note-A2P0').style.display = (a11yEnabled && a2Literal) ? 'block' : 'none';
+  // T1 highly proactive + T4 never
+  const t1hp = state.T1 === 'Highly proactive';
+  const t4n = state.T4 === 'Never';
+  document.getElementById('note-T1T4').style.display = (t1hp && t4n) ? 'block' : 'none';
+}
+
+// ── Persona Summary Generation ───────────────────────────────────────────
+
+function generatePersonaSummary() {
+  const parts = [];
+
+  // Expertise characterization
+  const e1 = state.E1;
+  const expertiseMap = {
+    'Beginner': 'a beginner who needs concepts explained from the ground up',
+    'Developing': 'someone building their knowledge who benefits from explanation of intermediate concepts',
+    'Intermediate': 'someone with intermediate technical knowledge',
+    'Advanced': 'someone with advanced domain expertise',
+    'Expert': 'a domain expert who expects peer-level engagement'
+  };
+  parts.push('You are working with ' + expertiseMap[e1] + '.');
+
+  // Tone + warmth sentence
+  const toneFrags = [];
+  if (state.C1 !== 'Neutral') toneFrags.push(state.C1.toLowerCase());
+  else toneFrags.push('neutral');
+  if (state.P1 !== 'Neutral') {
+    const warmthMap = { 'Clinical': 'clinical', 'Reserved': 'reserved', 'Warm': 'warm', 'Highly personal': 'warmly personal' };
+    toneFrags.push(warmthMap[state.P1] || state.P1.toLowerCase());
+  }
+  if (state.C2 !== 'Direct') toneFrags.push(state.C2.toLowerCase());
+  else toneFrags.push('direct');
+  parts.push('Use a ' + toneFrags.join(', ') + ' tone.');
+
+  // Length + format
+  const lenFrags = [];
+  if (state.F1 !== 'Balanced') lenFrags.push(state.F1.toLowerCase() + ' response length');
+  else lenFrags.push('balanced response length');
+  if (state.F2 !== 'AI judgment') lenFrags.push(state.F2.toLowerCase() + ' formatting');
+  else lenFrags.push('adaptive formatting');
+  parts.push('Respond with ' + lenFrags.join(' and ') + '.');
+
+  // Intellectual posture
+  const posture = [];
+  if (state.C3 === 'Agree with everything' || state.C3 === 'Complete tasks, no opinions') {
+    posture.push('The user has configured a non-opinionated assistant. Do not volunteer disagreements or evaluations.');
+  } else if (state.C3 !== 'Push back directly') {
+    const c3Map = {
+      'Soft nudge': 'Mention significant issues once briefly, then proceed.',
+      'Actively challenge': 'Actively steelman counterarguments and challenge positions — this is expected and welcomed.'
+    };
+    posture.push(c3Map[state.C3] || '');
+  } else {
+    posture.push('Push back directly when you disagree and never open with filler affirmations.');
+  }
+  if (state.T3 !== 'State assumption & proceed') {
+    const t3Map = {
+      'Ask first': 'Ask before proceeding when requests are ambiguous.',
+      'Best guess silently': 'Make reasonable assumptions and proceed without flagging them.',
+      'Attempt then ask': 'Attempt the most likely interpretation, then check.'
+    };
+    posture.push(t3Map[state.T3] || '');
+  } else {
+    posture.push("When requests are ambiguous, state your interpretation and proceed.");
+  }
+  if (state.P0 !== 'Occasional wit') {
+    if (state.P0 === 'Playful') posture.push('Be playful when the tone invites it.');
+    if (state.P0 === 'Serious') posture.push('Keep a serious, focused tone.');
+  }
+  parts.push(posture.filter(Boolean).join(' '));
+
+  // Accessibility
+  if (a11yEnabled) {
+    parts.push('Accessibility accommodations are active and take precedence over conflicting style settings.');
+  }
+
+  return parts.filter(Boolean).join(' ');
+}
+
+// ── Preview Generation ───────────────────────────────────────────────────
+
+function getSegInstruction(controlId) {
+  const val = state[controlId];
+  if (val === '__custom__') return customValues[controlId] || '';
+  const ctrl = CONTROLS[controlId];
+  if (ctrl.instructions && ctrl.instructions[val]) return ctrl.instructions[val];
+  return '';
+}
+
+function getSegChanged(controlId) {
+  const val = state[controlId];
+  if (val === '__custom__') return !!(customValues[controlId] || '').trim();
+  return val !== CONTROLS[controlId].defaultVal;
+}
+
+function getPillInstructions(controlId) {
+  const result = [];
+  const ctrl = CONTROLS[controlId];
+  state[controlId].forEach(pill => {
+    if (pill === '__custom__') {
+      if ((customValues[controlId] || '').trim()) result.push(customValues[controlId].trim());
+    } else if (ctrl.instructions[pill]) {
+      result.push(ctrl.instructions[pill]);
+    }
+  });
+  return result;
+}
+
+function generateMarkdown() {
+  const lines = [];
+  const now = new Date().toISOString().split('T')[0];
+  lines.push('# User Behavioral Preferences');
+  lines.push('_Schema version: 1.1 | Generated: ' + now + '_');
+  lines.push('');
+  lines.push('## Persona Summary');
+  lines.push(generatePersonaSummary());
+
+  // Communication
+  const commLines = [];
+  if (getSegChanged('C1')) commLines.push('- ' + getSegInstruction('C1'));
+  if (getSegChanged('C2')) commLines.push('- ' + getSegInstruction('C2'));
+  if (getSegChanged('C3')) commLines.push('- ' + getSegInstruction('C3'));
+  if (commLines.length) {
+    lines.push('');
+    lines.push('## Communication');
+    lines.push(...commLines);
+  }
+
+  // Response Format
+  const fmtLines = [];
+  if (getSegChanged('F1')) fmtLines.push('- ' + getSegInstruction('F1'));
+  if (getSegChanged('F2')) fmtLines.push('- ' + getSegInstruction('F2'));
+  if (getSegChanged('F3')) fmtLines.push('- ' + getSegInstruction('F3'));
+  // F4: always emit when ON, emit off-instruction when OFF
+  if (state.F4) {
+    fmtLines.push('- ' + CONTROLS.F4.instructionOn);
+  } else {
+    fmtLines.push('- ' + CONTROLS.F4.instructionOff);
+  }
+  if (getSegChanged('F5')) fmtLines.push('- ' + getSegInstruction('F5'));
+  if (fmtLines.length) {
+    lines.push('');
+    lines.push('## Response Format');
+    lines.push(...fmtLines);
+  }
+
+  // Expertise & Depth
+  const expLines = [];
+  if (getSegChanged('E1')) expLines.push('- ' + getSegInstruction('E1'));
+  if (getSegChanged('E2')) expLines.push('- ' + getSegInstruction('E2'));
+  if (getSegChanged('E3')) expLines.push('- ' + getSegInstruction('E3'));
+  if (getSegChanged('E4')) expLines.push('- ' + getSegInstruction('E4'));
+  if (expLines.length) {
+    lines.push('');
+    lines.push('## Expertise & Depth');
+    lines.push(...expLines);
+  }
+
+  // Personality & Affect
+  const perLines = [];
+  if (getSegChanged('P0')) perLines.push('- ' + getSegInstruction('P0'));
+  if (getSegChanged('P1')) perLines.push('- ' + getSegInstruction('P1'));
+  if (getSegChanged('P2')) perLines.push('- ' + getSegInstruction('P2'));
+  if (getSegChanged('P4')) perLines.push('- ' + getSegInstruction('P4'));
+  if (perLines.length) {
+    lines.push('');
+    lines.push('## Personality & Affect');
+    lines.push(...perLines);
+  }
+
+  // When Stressed
+  const stressInstr = getPillInstructions('P3');
+  if (stressInstr.length > 0) {
+    lines.push('');
+    lines.push('## When the User Seems Stressed or Down');
+    lines.push("_[OVERRIDE: These settings supersede Empathy Display (P2) when stress signals are detected in the user's messages.]_");
+    lines.push("If the user's messages seem terse, frustrated, or low-energy:");
+    stressInstr.forEach(instr => lines.push('- ' + instr));
+  }
+
+  // Task Behavior
+  const taskLines = [];
+  if (getSegChanged('T1')) taskLines.push('- ' + getSegInstruction('T1'));
+  if (getSegChanged('T2')) taskLines.push('- ' + getSegInstruction('T2'));
+  if (getSegChanged('T3')) taskLines.push('- ' + getSegInstruction('T3'));
+  if (getSegChanged('T4')) taskLines.push('- ' + getSegInstruction('T4'));
+  if (getSegChanged('T5')) taskLines.push('- ' + getSegInstruction('T5'));
+  if (getSegChanged('T6')) taskLines.push('- ' + getSegInstruction('T6'));
+  if (taskLines.length) {
+    lines.push('');
+    lines.push('## Task Behavior');
+    lines.push(...taskLines);
+  }
+
+  // Accessibility
+  if (a11yEnabled) {
+    const a11yLines = [];
+    ['A1','A2','A3','A4'].forEach(id => {
+      getPillInstructions(id).forEach(instr => a11yLines.push('- ' + instr));
+    });
+    if (getSegChanged('A5')) {
+      a11yLines.push('- ' + getSegInstruction('A5'));
+    }
+    if (a11yLines.length) {
+      lines.push('');
+      lines.push('## Accessibility');
+      lines.push('_[OVERRIDE: The following accessibility instructions take precedence over conflicting format or style settings above.]_');
+      lines.push(...a11yLines);
+    }
+  }
+
+  // Technical Style
+  if (codingEnabled) {
+    const techLines = [];
+    if (state.Tech1.trim()) {
+      techLines.push('- ' + CONTROLS.Tech1.instructionTemplate.replace('{value}', state.Tech1.trim()));
+    }
+    if (getSegChanged('Tech2')) techLines.push('- ' + getSegInstruction('Tech2'));
+    getPillInstructions('Tech3').forEach(instr => techLines.push('- ' + instr));
+    if (techLines.length) {
+      lines.push('');
+      lines.push('## Technical Style');
+      lines.push('_[OVERRIDE: Technical Style instructions supersede general Response Format and Expertise settings for code-related tasks.]_');
+      lines.push(...techLines);
+    }
+  }
+
+  // Custom Instructions
+  if (state.CX.trim()) {
+    lines.push('');
+    lines.push('## Custom Instructions');
+    lines.push('_These instructions take precedence over panel defaults where they conflict._');
+    lines.push(state.CX.trim());
+  }
+
+  return lines.join('\n');
+}
+
+function updatePreview() {
+  // Control changed — regenerate and clear manual edit flag
+  manuallyEdited = false;
+  const md = generateMarkdown();
+  manualText = md;
+  const textarea = document.getElementById('editorTextarea');
+  textarea.value = md;
+  if (previewMode === 'preview') {
+    renderPreview(md);
+  }
+}
+
+function getCurrentText() {
+  if (manuallyEdited) return manualText;
+  return document.getElementById('editorTextarea').value;
+}
+
+// ── Preview Mode Toggle ──────────────────────────────────────────────────
+
+function setPreviewMode(mode) {
+  previewMode = mode;
+  document.getElementById('modeEditorBtn').classList.toggle('active', mode === 'editor');
+  document.getElementById('modePreviewBtn').classList.toggle('active', mode === 'preview');
+  const textarea = document.getElementById('editorTextarea');
+  const rendered = document.getElementById('renderedPreview');
+  if (mode === 'editor') {
+    textarea.style.display = '';
+    rendered.style.display = 'none';
+  } else {
+    textarea.style.display = 'none';
+    rendered.style.display = '';
+    renderPreview(getCurrentText());
+  }
+}
+
+function renderMarkdownToHtml(md) {
+  // Basic markdown to HTML renderer
+  const lines = md.split('\n');
+  let html = '';
+  let inList = false;
+
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i];
+
+    // Headers
+    if (line.startsWith('# ')) {
+      if (inList) { html += '</ul>'; inList = false; }
+      html += '<h1>' + escapeHtml(line.substring(2)) + '</h1>';
+      continue;
+    }
+    if (line.startsWith('## ')) {
+      if (inList) { html += '</ul>'; inList = false; }
+      html += '<h2>' + escapeHtml(line.substring(3)) + '</h2>';
+      continue;
+    }
+    if (line.startsWith('### ')) {
+      if (inList) { html += '</ul>'; inList = false; }
+      html += '<h3>' + escapeHtml(line.substring(4)) + '</h3>';
+      continue;
+    }
+
+    // List items
+    if (line.startsWith('- ')) {
+      if (!inList) { html += '<ul>'; inList = true; }
+      html += '<li>' + inlineFormat(line.substring(2)) + '</li>';
+      continue;
+    }
+
+    // Empty line
+    if (line.trim() === '') {
+      if (inList) { html += '</ul>'; inList = false; }
+      continue;
+    }
+
+    // Regular paragraph
+    if (inList) { html += '</ul>'; inList = false; }
+    html += '<p>' + inlineFormat(line) + '</p>';
+  }
+
+  if (inList) html += '</ul>';
+  return html;
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function inlineFormat(str) {
+  let s = escapeHtml(str);
+  // Bold: **text** or __text__
+  s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  s = s.replace(/__(.+?)__/g, '<strong>$1</strong>');
+  // Italic: _text_ or *text* (but not inside words with underscores)
+  s = s.replace(/(?<!\w)_(.+?)_(?!\w)/g, '<em>$1</em>');
+  s = s.replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
+  // Inline code: `text`
+  s = s.replace(/`(.+?)`/g, '<code style="background:var(--surface2);padding:1px 4px;border-radius:3px;font-family:var(--mono);font-size:12px;">$1</code>');
+  return s;
+}
+
+function renderPreview(md) {
+  document.getElementById('renderedPreview').innerHTML = renderMarkdownToHtml(md);
+}
+
+// ── Editor textarea input handler ────────────────────────────────────────
+
+document.getElementById('editorTextarea').addEventListener('input', function() {
+  manuallyEdited = true;
+  manualText = this.value;
+});
+
+// ── Actions ──────────────────────────────────────────────────────────────
+
+function copyPreview() {
+  const text = getCurrentText();
+  navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard'));
+}
+
+function downloadPreview() {
+  const text = getCurrentText();
+  const blob = new Blob([text], { type: 'text/markdown' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'preferences.md';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('Downloaded preferences.md');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function showImport() {
+  document.getElementById('importOverlay').classList.add('show');
+  document.getElementById('importText').value = '';
+  document.getElementById('importText').focus();
+}
+
+function hideImport() {
+  document.getElementById('importOverlay').classList.remove('show');
+}
+
+function resetAll() {
+  if (!confirm('Reset all preferences to defaults?')) return;
+  initState();
+  showAllTier2 = false;
+  a11yEnabled = false;
+  codingEnabled = false;
+  manuallyEdited = false;
+  manualText = '';
+  Object.keys(customValues).forEach(k => delete customValues[k]);
+  // Reset UI
+  document.querySelectorAll('.tier2-control').forEach(el => el.classList.remove('show'));
+  const knob = document.getElementById('showAllKnob');
+  const track = document.getElementById('showAllTrack');
+  knob.style.left = '2px'; knob.style.background = 'var(--text3)';
+  track.style.background = 'var(--surface2)'; track.style.borderColor = 'var(--border)';
+  document.getElementById('a11yMaster').classList.remove('active');
+  document.getElementById('a11y-body').classList.add('disabled-section');
+  document.getElementById('note-a11y-override').style.display = 'none';
+  document.getElementById('codingToggle').classList.remove('active');
+  document.getElementById('sec-tech').classList.add('hidden');
+  // Reset text inputs
+  document.querySelectorAll('input[data-control], textarea.control-textarea[data-control]').forEach(el => {
+    el.value = '';
+  });
+  document.getElementById('qs-CX').value = '';
+  document.getElementById('main-CX').value = '';
+  // Rebuild
+  buildAllControls();
+  updateContextNotes();
+  updatePreview();
+  showToast('Reset to defaults');
+}
+
+// ── Import Parser ────────────────────────────────────────────────────────
+
+function doImport() {
+  const text = document.getElementById('importText').value;
+  if (!text.trim()) { hideImport(); return; }
+
+  // Parse sections
+  const sectionMap = {};
+  let currentSection = null;
+  text.split('\n').forEach(line => {
+    const headerMatch = line.match(/^## (.+)/);
+    if (headerMatch) {
+      currentSection = headerMatch[1].trim();
+      sectionMap[currentSection] = [];
+    } else if (currentSection) {
+      sectionMap[currentSection].push(line);
+    }
+  });
+
+  // Try to match instructions back to controls
+  for (const [id, ctrl] of Object.entries(CONTROLS)) {
+    if (ctrl.type === 'seg' && ctrl.instructions) {
+      for (const [optName, instr] of Object.entries(ctrl.instructions)) {
+        if (!instr) continue;
+        const found = Object.values(sectionMap).flat().some(line => line.includes(instr.substring(0, 40)));
+        if (found) { state[id] = optName; break; }
+      }
+    } else if (ctrl.type === 'pills' && ctrl.instructions) {
+      state[id] = [];
+      for (const [optName, instr] of Object.entries(ctrl.instructions)) {
+        const found = Object.values(sectionMap).flat().some(line => line.includes(instr.substring(0, 40)));
+        if (found) state[id].push(optName);
+      }
+    } else if (ctrl.type === 'toggle') {
+      if (id === 'F4') {
+        const hasOn = Object.values(sectionMap).flat().some(l => l.includes('Begin every response with substantive content'));
+        const hasOff = Object.values(sectionMap).flat().some(l => l.includes('Conversational openers and preamble are acceptable'));
+        if (hasOff) state.F4 = false;
+        else state.F4 = true;
+      }
+    }
+  }
+
+  // Custom instructions
+  if (sectionMap['Custom Instructions']) {
+    const cxLines = sectionMap['Custom Instructions'].filter(l => !l.startsWith('_') && l.trim());
+    state.CX = cxLines.join('\n').trim();
+  }
+
+  // Tech1 text
+  if (sectionMap['Technical Style']) {
+    const techLine = sectionMap['Technical Style'].find(l => l.includes('The user primarily works with:'));
+    if (techLine) {
+      const match = techLine.match(/works with: (.+?)\./);
+      if (match) state.Tech1 = match[1].trim();
+    }
+    // If tech section present, enable coding
+    codingEnabled = true;
+    document.getElementById('codingToggle').classList.add('active');
+    document.getElementById('sec-tech').classList.remove('hidden');
+  }
+
+  // If accessibility section present, enable a11y
+  if (sectionMap['Accessibility']) {
+    a11yEnabled = true;
+    document.getElementById('a11yMaster').classList.add('active');
+    document.getElementById('a11y-body').classList.remove('disabled-section');
+    document.getElementById('note-a11y-override').style.display = 'block';
+  }
+
+  // Sync text inputs
+  document.getElementById('qs-CX').value = state.CX;
+  document.getElementById('main-CX').value = state.CX;
+  const tech1Input = document.querySelector('input[data-control="Tech1"]');
+  if (tech1Input) tech1Input.value = state.Tech1 || '';
+
+  // Rebuild UI
+  buildAllControls();
+  const f4toggle = document.querySelector('[data-control="F4"]');
+  if (f4toggle) f4toggle.classList.toggle('active', state.F4);
+  updateContextNotes();
+  manuallyEdited = false;
+  updatePreview();
+  hideImport();
+  showToast('Preferences imported');
+}
+
+// ── Text input handling for Tech1 ────────────────────────────────────────
+
+document.addEventListener('input', function(e) {
+  if (e.target.matches('input[data-control="Tech1"]')) {
+    state.Tech1 = e.target.value;
+    updatePreview();
+  }
+});
+
+// ── Init ─────────────────────────────────────────────────────────────────
+
+initState();
+buildAllControls();
+updateContextNotes();
+updatePreview();
+</script>
+</body>
+</html>

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0F02F16E2F5009B9008BEE76 /* iCloudSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F02F16D2F5009B9008BEE76 /* iCloudSyncService.swift */; };
 		A10000001 /* TinkerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000001 /* TinkerApp.swift */; };
 		A10000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000002 /* ContentView.swift */; };
 		A10000003 /* ChatMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000003 /* ChatMessage.swift */; };
@@ -16,22 +17,19 @@
 		A1000000C /* ClaudeCodeSDK in Frameworks */ = {isa = PBXBuildFile; productRef = B1000000P /* ClaudeCodeSDK */; };
 		A1000000D /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000D /* Session.swift */; };
 		A1000000E /* SessionSidebar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000E /* SessionSidebar.swift */; };
-		A100000F0 /* SessionInspectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000F0 /* SessionInspectorView.swift */; };
-		A100000F1 /* GitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000F1 /* GitService.swift */; };
 		A1000000F /* Sen-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A2000000F /* Sen-Regular.ttf */; };
+		A1000000U /* USearch in Frameworks */ = {isa = PBXBuildFile; productRef = B1000000U /* USearch */; };
 		A10000010 /* Sen-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A20000010 /* Sen-Bold.ttf */; };
 		A10000011 /* Sen-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A20000011 /* Sen-ExtraBold.ttf */; };
 		A10000012 /* SlashCommandMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000013 /* SlashCommandMenu.swift */; };
 		A10000014 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000014 /* SettingsView.swift */; };
 		A10000015 /* familiar-cat.png in Resources */ = {isa = PBXBuildFile; fileRef = A20000015 /* familiar-cat.png */; };
 		A10000018 /* SettingsConfiguratorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000018 /* SettingsConfiguratorView.swift */; };
-
 		A100000201 /* CommandRunState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000201 /* CommandRunState.swift */; };
 		A100000202 /* CommandRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000202 /* CommandRunner.swift */; };
 		A100000203 /* DoctorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000203 /* DoctorService.swift */; };
 		A100000204 /* DoctorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000204 /* DoctorView.swift */; };
 		A100000205 /* CommandPaletteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000205 /* CommandPaletteView.swift */; };
-
 		A100000207 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A200000207 /* Assets.xcassets */; };
 		A100000208 /* TranscriptLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000208 /* TranscriptLogger.swift */; };
 		A100000212 /* salience-labels.json in Resources */ = {isa = PBXBuildFile; fileRef = A200000212 /* salience-labels.json */; };
@@ -51,10 +49,22 @@
 		A100000471 /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000471 /* EmptyStateView.swift */; };
 		A100000480 /* ThreadManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000480 /* ThreadManagerView.swift */; };
 		A100000490 /* SessionTitleGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000490 /* SessionTitleGenerator.swift */; };
-		A1000000U /* USearch in Frameworks */ = {isa = PBXBuildFile; productRef = B1000000U /* USearch */; };
+		A100000501 /* TinkerAddOn.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000501 /* TinkerAddOn.swift */; };
+		A100000502 /* FamiliarAddOn.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000502 /* FamiliarAddOn.swift */; };
+		A100000503 /* FamiliarConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000503 /* FamiliarConfigView.swift */; };
+		A100000504 /* AddOnRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000504 /* AddOnRegistry.swift */; };
+		A100000505 /* AddOnsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000505 /* AddOnsSettingsView.swift */; };
+		A100000506 /* FamiliarConfigurator.html in Resources */ = {isa = PBXBuildFile; fileRef = A200000506 /* FamiliarConfigurator.html */; };
+		A100000507 /* MemorableAddOn.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000507 /* MemorableAddOn.swift */; };
+		A100000508 /* WorkingMemoryWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000508 /* WorkingMemoryWriter.swift */; };
+		A100000509 /* MemorableDistiller.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000509 /* MemorableDistiller.swift */; };
+		A100000510 /* MemorableConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000510 /* MemorableConfigView.swift */; };
+		A100000F0 /* SessionInspectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000F0 /* SessionInspectorView.swift */; };
+		A100000F1 /* GitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000F1 /* GitService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0F02F16D2F5009B9008BEE76 /* iCloudSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iCloudSyncService.swift; sourceTree = "<group>"; };
 		0FF488042F4BF6F700CA5FA9 /* Tinker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Tinker.entitlements; sourceTree = "<group>"; };
 		A20000001 /* TinkerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TinkerApp.swift; sourceTree = "<group>"; };
 		A20000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -64,8 +74,6 @@
 		A2000000B /* MessageBubble.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageBubble.swift; sourceTree = "<group>"; };
 		A2000000D /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
 		A2000000E /* SessionSidebar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionSidebar.swift; sourceTree = "<group>"; };
-		A200000F0 /* SessionInspectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionInspectorView.swift; sourceTree = "<group>"; };
-		A200000F1 /* GitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitService.swift; sourceTree = "<group>"; };
 		A2000000F /* Sen-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Sen-Regular.ttf"; sourceTree = "<group>"; };
 		A20000010 /* Sen-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Sen-Bold.ttf"; sourceTree = "<group>"; };
 		A20000011 /* Sen-ExtraBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Sen-ExtraBold.ttf"; sourceTree = "<group>"; };
@@ -74,13 +82,11 @@
 		A20000014 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		A20000015 /* familiar-cat.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "familiar-cat.png"; sourceTree = "<group>"; };
 		A20000018 /* SettingsConfiguratorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsConfiguratorView.swift; sourceTree = "<group>"; };
-
 		A200000201 /* CommandRunState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandRunState.swift; sourceTree = "<group>"; };
 		A200000202 /* CommandRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandRunner.swift; sourceTree = "<group>"; };
 		A200000203 /* DoctorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoctorService.swift; sourceTree = "<group>"; };
 		A200000204 /* DoctorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoctorView.swift; sourceTree = "<group>"; };
 		A200000205 /* CommandPaletteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandPaletteView.swift; sourceTree = "<group>"; };
-
 		A200000207 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A200000208 /* TranscriptLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptLogger.swift; sourceTree = "<group>"; };
 		A200000212 /* salience-labels.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "salience-labels.json"; sourceTree = "<group>"; };
@@ -100,6 +106,18 @@
 		A200000471 /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
 		A200000480 /* ThreadManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadManagerView.swift; sourceTree = "<group>"; };
 		A200000490 /* SessionTitleGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionTitleGenerator.swift; sourceTree = "<group>"; };
+		A200000501 /* TinkerAddOn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TinkerAddOn.swift; sourceTree = "<group>"; };
+		A200000502 /* FamiliarAddOn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamiliarAddOn.swift; sourceTree = "<group>"; };
+		A200000503 /* FamiliarConfigView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamiliarConfigView.swift; sourceTree = "<group>"; };
+		A200000504 /* AddOnRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddOnRegistry.swift; sourceTree = "<group>"; };
+		A200000505 /* AddOnsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddOnsSettingsView.swift; sourceTree = "<group>"; };
+		A200000506 /* FamiliarConfigurator.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = FamiliarConfigurator.html; sourceTree = "<group>"; };
+		A200000507 /* MemorableAddOn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemorableAddOn.swift; sourceTree = "<group>"; };
+		A200000508 /* WorkingMemoryWriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkingMemoryWriter.swift; sourceTree = "<group>"; };
+		A200000509 /* MemorableDistiller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemorableDistiller.swift; sourceTree = "<group>"; };
+		A200000510 /* MemorableConfigView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemorableConfigView.swift; sourceTree = "<group>"; };
+		A200000F0 /* SessionInspectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionInspectorView.swift; sourceTree = "<group>"; };
+		A200000F1 /* GitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitService.swift; sourceTree = "<group>"; };
 		A3000000P /* Tinker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tinker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -128,6 +146,9 @@
 				A5000000F /* ViewModels */,
 				A5000000G /* Views */,
 				A5000000H /* Resources */,
+				A5000000K /* AddOns */,
+				A5000000L /* Memorable */,
+				0F02F16D2F5009B9008BEE76 /* iCloudSyncService.swift */,
 			);
 			path = Tinker;
 			sourceTree = "<group>";
@@ -163,10 +184,8 @@
 				A20000013 /* SlashCommandMenu.swift */,
 				A20000014 /* SettingsView.swift */,
 				A20000018 /* SettingsConfiguratorView.swift */,
-
 				A200000204 /* DoctorView.swift */,
 				A200000205 /* CommandPaletteView.swift */,
-
 				A200000213 /* SpotlightLauncher.swift */,
 				A200000215 /* ExtensionsView.swift */,
 				A200000217 /* SearchView.swift */,
@@ -174,7 +193,6 @@
 				A200000246 /* AgentTeamSheetView.swift */,
 				A200000250 /* SplitSessionView.swift */,
 				A200000260 /* SessionTimelineView.swift */,
-
 				A200000471 /* EmptyStateView.swift */,
 				A200000480 /* ThreadManagerView.swift */,
 			);
@@ -215,6 +233,30 @@
 				A200000490 /* SessionTitleGenerator.swift */,
 			);
 			path = Services;
+			sourceTree = "<group>";
+		};
+		A5000000K /* AddOns */ = {
+			isa = PBXGroup;
+			children = (
+				A200000501 /* TinkerAddOn.swift */,
+				A200000502 /* FamiliarAddOn.swift */,
+				A200000503 /* FamiliarConfigView.swift */,
+				A200000504 /* AddOnRegistry.swift */,
+				A200000505 /* AddOnsSettingsView.swift */,
+				A200000506 /* FamiliarConfigurator.html */,
+			);
+			path = AddOns;
+			sourceTree = "<group>";
+		};
+		A5000000L /* Memorable */ = {
+			isa = PBXGroup;
+			children = (
+				A200000507 /* MemorableAddOn.swift */,
+				A200000508 /* WorkingMemoryWriter.swift */,
+				A200000509 /* MemorableDistiller.swift */,
+				A200000510 /* MemorableConfigView.swift */,
+			);
+			path = Memorable;
 			sourceTree = "<group>";
 		};
 		A5000000Q /* Products */ = {
@@ -300,6 +342,7 @@
 				A10000015 /* familiar-cat.png in Resources */,
 				A100000207 /* Assets.xcassets in Resources */,
 				A100000212 /* salience-labels.json in Resources */,
+				A100000506 /* FamiliarConfigurator.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -323,13 +366,11 @@
 				A10000012 /* SlashCommandMenu.swift in Sources */,
 				A10000014 /* SettingsView.swift in Sources */,
 				A10000018 /* SettingsConfiguratorView.swift in Sources */,
-
 				A100000201 /* CommandRunState.swift in Sources */,
 				A100000202 /* CommandRunner.swift in Sources */,
 				A100000203 /* DoctorService.swift in Sources */,
 				A100000204 /* DoctorView.swift in Sources */,
 				A100000205 /* CommandPaletteView.swift in Sources */,
-
 				A100000208 /* TranscriptLogger.swift in Sources */,
 				A100000213 /* SpotlightLauncher.swift in Sources */,
 				A100000214 /* MCPExtension.swift in Sources */,
@@ -346,7 +387,17 @@
 				A100000320 /* AgentTeamWatcher.swift in Sources */,
 				A100000471 /* EmptyStateView.swift in Sources */,
 				A100000480 /* ThreadManagerView.swift in Sources */,
+				0F02F16E2F5009B9008BEE76 /* iCloudSyncService.swift in Sources */,
 				A100000490 /* SessionTitleGenerator.swift in Sources */,
+				A100000501 /* TinkerAddOn.swift in Sources */,
+				A100000502 /* FamiliarAddOn.swift in Sources */,
+				A100000503 /* FamiliarConfigView.swift in Sources */,
+				A100000504 /* AddOnRegistry.swift in Sources */,
+				A100000505 /* AddOnsSettingsView.swift in Sources */,
+				A100000507 /* MemorableAddOn.swift in Sources */,
+				A100000508 /* WorkingMemoryWriter.swift in Sources */,
+				A100000509 /* MemorableDistiller.swift in Sources */,
+				A100000510 /* MemorableConfigView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -416,9 +467,9 @@
 				ENABLE_APP_SANDBOX = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Tinker/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Tinker;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INFOPLIST_KEY_CFBundleDisplayName = Tinker;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -444,9 +495,9 @@
 				ENABLE_APP_SANDBOX = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Tinker/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Tinker;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INFOPLIST_KEY_CFBundleDisplayName = Tinker;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",

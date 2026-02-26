@@ -5,11 +5,13 @@ import SwiftUI
 private enum SettingsTab: String, CaseIterable {
     case appearance = "Appearance"
     case systemPrompt = "System Prompt"
+    case addOns = "Add-Ons"
 
     var icon: String {
         switch self {
         case .appearance: return "paintbrush"
         case .systemPrompt: return "text.bubble"
+        case .addOns: return "puzzlepiece.extension"
         }
     }
 }
@@ -29,6 +31,7 @@ struct SettingsConfiguratorView: View {
                 switch selectedTab {
                 case .appearance: appearanceTab
                 case .systemPrompt: systemPromptTab
+                case .addOns: AddOnsSettingsView()
                 }
             }
             Divider()
@@ -92,6 +95,7 @@ struct SettingsConfiguratorView: View {
     }
 
     private let presets: [AccentPreset] = [
+        .init(name: "Noir", r: 0.15, g: 0.15, b: 0.15),
         .init(name: "Teal", r: 0.2, g: 0.62, b: 0.58),
         .init(name: "Amber", r: 0.82, g: 0.63, b: 0.22),
         .init(name: "Coral", r: 0.85, g: 0.42, b: 0.38),
@@ -100,7 +104,6 @@ struct SettingsConfiguratorView: View {
         .init(name: "Sage", r: 0.42, g: 0.62, b: 0.45),
         .init(name: "Slate", r: 0.4, g: 0.48, b: 0.58),
         .init(name: "Rose", r: 0.78, g: 0.38, b: 0.52),
-        .init(name: "Noir", r: 0.15, g: 0.15, b: 0.15),
         .init(name: "Rainbow", r: -1, g: -1, b: -1),
     ]
 

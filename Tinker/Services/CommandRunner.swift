@@ -93,10 +93,24 @@ var onResultReceived: ((ResultMessage) -> Void)?
 
         let systemPromptMode = UserDefaults.standard.string(forKey: "systemPromptMode") ?? "off"
         let customSystemPrompt = UserDefaults.standard.string(forKey: "customSystemPrompt") ?? ""
+        let addOnContent = AddOnRegistry.combinedSystemPrompt
+
         if systemPromptMode == "override" && !customSystemPrompt.isEmpty {
             args.append(contentsOf: ["--system-prompt", customSystemPrompt])
-        } else if systemPromptMode == "append" && !customSystemPrompt.isEmpty {
-            args.append(contentsOf: ["--append-system-prompt", customSystemPrompt])
+            if let addOnContent {
+                args.append(contentsOf: ["--append-system-prompt", addOnContent])
+            }
+        } else {
+            var appendParts: [String] = []
+            if systemPromptMode == "append" && !customSystemPrompt.isEmpty {
+                appendParts.append(customSystemPrompt)
+            }
+            if let addOnContent {
+                appendParts.append(addOnContent)
+            }
+            if !appendParts.isEmpty {
+                args.append(contentsOf: ["--append-system-prompt", appendParts.joined(separator: "\n\n")])
+            }
         }
 
         // Resume existing session if we have one
