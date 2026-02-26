@@ -331,14 +331,8 @@ class ChatViewModel {
             isComplete: false
         ))
 
-        // On first message of a session, prepend Memorable's "go read" instruction
-        var prompt = trimmed
-        if currentSessionId == nil, let prefix = MemorableAddOn.shared.firstMessagePrefix {
-            prompt = prefix + trimmed
-        }
-
         commandRunner.run(
-            prompt: prompt,
+            prompt: trimmed,
             sessionId: currentSessionId,
             model: selectedModel,
             messageId: assistantId,
