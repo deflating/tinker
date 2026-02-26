@@ -90,7 +90,7 @@ class MemorableAddOn: TinkerAddOn {
 
     // MARK: - File Paths
 
-    var workingPath: String { "\(directory)/working.md" }
+    var workingDirectory: String { "\(directory)/working" }
     var episodicPath: String { "\(directory)/episodic.md" }
     var semanticPath: String { "\(directory)/semantic.md" }
     var seedsDirectory: String { "\(directory)/seeds" }
@@ -133,16 +133,25 @@ class MemorableAddOn: TinkerAddOn {
     // MARK: - TinkerAddOn
 
     var systemPromptContent: String? {
-        // We no longer inject memory contents into the system prompt.
-        // Instead, we prepend a "go read" instruction to the first user message.
-        return nil
-    }
-
-    /// Returns an instruction to prepend to the first message of a session,
-    /// telling Claude to read its memory files before replying.
-    var firstMessagePrefix: String? {
         guard isEnabled && injectionEnabled else { return nil }
-        return "BEFORE YOU REPLY: orient yourself by reading your memory files at \(directory)/. Read semantic.md, then episodic.md (recent 5-day summary), then working.md (last ~100 lines). These are your memory — they tell you who you're talking to and what's been happening.\n\n"
+
+        var sections: [String] = []
+
+        if !preferencesContent.isEmpty {
+            sections.append("--- PREFERENCES ---\n\(preferencesContent)")
+        }
+        if !personaContent.isEmpty {
+            sections.append("--- PERSONA ---\n\(personaContent)")
+        }
+        if !episodicContent.isEmpty {
+            sections.append("--- EPISODIC CONTEXT (last 5 days) ---\n\(episodicContent)")
+        }
+        if !semanticContent.isEmpty {
+            sections.append("--- KNOWLEDGE ---\n\(semanticContent)")
+        }
+
+        guard !sections.isEmpty else { return nil }
+        return sections.joined(separator: "\n\n")
     }
 
     // MARK: - File Operations
@@ -166,24 +175,16 @@ class MemorableAddOn: TinkerAddOn {
     }
 
     func updateWorkingStats() {
-        let path = workingPath
-        if let attrs = try? FileManager.default.attributesOfItem(atPath: path),
-           let size = attrs[.size] as? Int {
-            workingSize = size
-            if let content = try? String(contentsOfFile: path, encoding: .utf8) {
-                workingLineCount = content.components(separatedBy: "\n").count
-            }
-        } else {
-            workingSize = 0
-            workingLineCount = 0
-        }
+        let stats = writer.stats()
+        workingSize = stats.size
+        workingLineCount = stats.lineCount
     }
 
     // MARK: - Directory Setup
 
     private func ensureDirectoryStructure() {
         let fm = FileManager.default
-        let dirs = [directory, seedsDirectory]
+        let dirs = [directory, seedsDirectory, workingDirectory]
         for dir in dirs {
             if !fm.fileExists(atPath: dir) {
                 try? fm.createDirectory(atPath: dir, withIntermediateDirectories: true)

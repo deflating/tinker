@@ -1,13 +1,16 @@
 import Foundation
 import os.log
 
-/// Appends to working.md in real-time as messages flow through Tinker.
+/// Appends to per-session files in working/ directory in real-time as messages flow through Tinker.
 /// Taps into the same data flow as CommandRunner's callbacks.
 /// Format:
 ///   [HH:MM] Matt: <text>
 ///   Claude: <text>
 ///     -> ToolName(target)
 ///   --- Session started YYYY-MM-DD HH:MM ---
+///
+/// Each session gets its own file: working/YYYY-MM-DD-<sessionId>.md
+/// This avoids iCloud sync conflicts when multiple machines write concurrently.
 @MainActor
 final class WorkingMemoryWriter {
 
@@ -15,12 +18,13 @@ final class WorkingMemoryWriter {
     private var directory: String
     private var fileHandle: FileHandle?
     private var currentSessionId: String?
+    private var currentFilePath: String?
     private var hasWrittenSessionHeader = false
 
     /// Non-isolated box for deinit cleanup.
     private nonisolated(unsafe) var _handleForDeinit: FileHandle?
 
-    var filePath: String { "\(directory)/working.md" }
+    var workingDirectory: String { "\(directory)/working" }
 
     init(directory: String) {
         self.directory = directory
@@ -42,6 +46,10 @@ final class WorkingMemoryWriter {
             close()
             currentSessionId = id
             hasWrittenSessionHeader = false
+
+            let dateStr = Self.dateOnly()
+            let shortId = String(id.prefix(8))
+            currentFilePath = "\(workingDirectory)/\(dateStr)-\(shortId).md"
         }
         ensureOpen()
         if !hasWrittenSessionHeader {
@@ -65,7 +73,7 @@ final class WorkingMemoryWriter {
         guard !text.isEmpty else { return }
         let stripped = stripSystemReminders(text)
         guard !stripped.isEmpty else { return }
-        // Truncate very long responses to keep working.md manageable
+        // Truncate very long responses to keep files manageable
         let truncated = stripped.count > 2000 ? String(stripped.prefix(2000)) + " [...]" : stripped
         append("Claude: \(truncated)\n\n")
     }
@@ -76,21 +84,81 @@ final class WorkingMemoryWriter {
         append("  -> \(name)\(suffix)\n")
     }
 
+    // MARK: - Stats
+
+    /// Returns total size and line count across all working files.
+    func stats() -> (size: Int, lineCount: Int, fileCount: Int) {
+        let fm = FileManager.default
+        guard let files = try? fm.contentsOfDirectory(atPath: workingDirectory) else {
+            return (0, 0, 0)
+        }
+        let mdFiles = files.filter { $0.hasSuffix(".md") }
+        var totalSize = 0
+        var totalLines = 0
+        for file in mdFiles {
+            let path = "\(workingDirectory)/\(file)"
+            if let attrs = try? fm.attributesOfItem(atPath: path),
+               let size = attrs[.size] as? Int {
+                totalSize += size
+            }
+            if let content = try? String(contentsOfFile: path, encoding: .utf8) {
+                totalLines += content.components(separatedBy: "\n").count
+            }
+        }
+        return (totalSize, totalLines, mdFiles.count)
+    }
+
+    /// Returns all working file contents within the last N days, concatenated.
+    func recentContent(days: Int = 5) -> String {
+        let fm = FileManager.default
+        guard let files = try? fm.contentsOfDirectory(atPath: workingDirectory) else {
+            return ""
+        }
+
+        let cutoff = Calendar.current.date(byAdding: .day, value: -days, to: Date())!
+        let cutoffStr = Self.dateOnlyFormatter().string(from: cutoff)
+
+        let mdFiles = files.filter { $0.hasSuffix(".md") }
+            .sorted()
+            .filter { $0 >= cutoffStr }  // date-prefixed filenames sort chronologically
+
+        var parts: [String] = []
+        for file in mdFiles {
+            if let content = try? String(contentsOfFile: "\(workingDirectory)/\(file)", encoding: .utf8) {
+                parts.append(content)
+            }
+        }
+        return parts.joined(separator: "\n")
+    }
+
+    /// Removes working files older than N days.
+    func purgeOldFiles(days: Int = 5) {
+        let fm = FileManager.default
+        guard let files = try? fm.contentsOfDirectory(atPath: workingDirectory) else { return }
+
+        let cutoff = Calendar.current.date(byAdding: .day, value: -days, to: Date())!
+        let cutoffStr = Self.dateOnlyFormatter().string(from: cutoff)
+
+        for file in files where file.hasSuffix(".md") && file < cutoffStr {
+            let path = "\(workingDirectory)/\(file)"
+            try? fm.removeItem(atPath: path)
+            logger.info("Purged old working file: \(file)")
+        }
+    }
+
     // MARK: - Private
 
     private func ensureOpen() {
-        guard fileHandle == nil else { return }
+        guard fileHandle == nil, let path = currentFilePath else { return }
         let fm = FileManager.default
-        let path = filePath
 
-        // Ensure parent directory exists
-        let dir = (path as NSString).deletingLastPathComponent
-        if !fm.fileExists(atPath: dir) {
-            try? fm.createDirectory(atPath: dir, withIntermediateDirectories: true)
+        // Ensure working directory exists
+        if !fm.fileExists(atPath: workingDirectory) {
+            try? fm.createDirectory(atPath: workingDirectory, withIntermediateDirectories: true)
         }
 
         if !fm.fileExists(atPath: path) {
-            fm.createFile(atPath: path, contents: "# Working Memory\n\n".data(using: .utf8))
+            fm.createFile(atPath: path, contents: nil)
         }
 
         fileHandle = try? FileHandle(forWritingTo: URL(fileURLWithPath: path))
@@ -134,5 +202,15 @@ final class WorkingMemoryWriter {
         let f = DateFormatter()
         f.dateFormat = "HH:mm"
         return f.string(from: Date())
+    }
+
+    private static func dateOnly() -> String {
+        dateOnlyFormatter().string(from: Date())
+    }
+
+    private static func dateOnlyFormatter() -> DateFormatter {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        return f
     }
 }

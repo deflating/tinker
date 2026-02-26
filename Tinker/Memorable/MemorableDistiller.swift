@@ -61,10 +61,9 @@ final class MemorableDistiller {
             return
         }
 
-        let workingPath = "\(directory)/working.md"
-        guard let workingContent = try? String(contentsOfFile: workingPath, encoding: .utf8),
-              !workingContent.isEmpty else {
-            logger.info("working.md is empty, nothing to distill")
+        let workingContent = MemorableAddOn.shared.writer.recentContent(days: 5)
+        guard !workingContent.isEmpty else {
+            logger.info("No working memory to distill")
             return
         }
 
@@ -155,8 +154,8 @@ final class MemorableDistiller {
             logger.info("Wrote updated semantic.md mutable section (\(newMutable.count) chars)")
         }
 
-        // Step 3: Truncate working.md entries older than 5 days
-        truncateOldEntries(in: workingPath)
+        // Step 3: Purge working files older than 5 days
+        MemorableAddOn.shared.writer.purgeOldFiles(days: 5)
 
         // Reload cached file contents
         MemorableAddOn.shared.reloadFiles()
@@ -231,36 +230,4 @@ final class MemorableDistiller {
         return String(semantic[range.upperBound...]).trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    // MARK: - Working Memory Truncation
-
-    private func truncateOldEntries(in path: String) {
-        guard let content = try? String(contentsOfFile: path, encoding: .utf8) else { return }
-
-        let fiveDaysAgo = Calendar.current.date(byAdding: .day, value: -5, to: Date())!
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
-
-        // Split by session separators and keep only recent ones
-        let sessions = content.components(separatedBy: "--- Session started ")
-        var kept: [String] = []
-
-        for session in sessions {
-            if session.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { continue }
-            // Try to parse the timestamp from the first line
-            let firstLine = session.components(separatedBy: " ---").first ?? ""
-            if let date = dateFormatter.date(from: firstLine.trimmingCharacters(in: .whitespacesAndNewlines)),
-               date >= fiveDaysAgo {
-                kept.append("--- Session started " + session)
-            } else if firstLine.hasPrefix("#") {
-                // Keep the header
-                kept.insert(session, at: 0)
-            }
-        }
-
-        let truncated = kept.joined()
-        if truncated.count < content.count {
-            try? truncated.write(toFile: path, atomically: true, encoding: .utf8)
-            logger.info("Truncated working.md: \(content.count) → \(truncated.count) chars")
-        }
-    }
 }
