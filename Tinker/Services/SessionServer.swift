@@ -28,8 +28,8 @@ final class SessionServer {
     func start() {
         guard listener == nil else { return }
 
-        // Write token to file for simulator companion app development
         writeTokenFile()
+        writeTokenToiCloud()
 
         let params = NWParameters.tcp
         let wsOptions = NWProtocolWebSocket.Options()
@@ -226,6 +226,18 @@ final class SessionServer {
         let path = FileManager.default.homeDirectoryForCurrentUser
             .appendingPathComponent(".tinker-auth-token").path
         try? authToken.write(toFile: path, atomically: true, encoding: .utf8)
+    }
+
+    private func writeTokenToiCloud() {
+        guard let containerURL = FileManager.default.url(forUbiquityContainerIdentifier: "iCloud.app.tinker") else {
+            logger.warning("iCloud container not available, skipping token sync")
+            return
+        }
+        let docsURL = containerURL.appendingPathComponent("Documents")
+        try? FileManager.default.createDirectory(at: docsURL, withIntermediateDirectories: true)
+        let tokenURL = docsURL.appendingPathComponent(".auth-token")
+        try? authToken.write(to: tokenURL, atomically: true, encoding: .utf8)
+        logger.info("Auth token written to iCloud Drive")
     }
 
     private func sendSync(to clientId: UUID) {

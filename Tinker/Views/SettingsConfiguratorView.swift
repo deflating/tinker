@@ -6,12 +6,14 @@ private enum SettingsTab: String, CaseIterable {
     case appearance = "Appearance"
     case systemPrompt = "System Prompt"
     case addOns = "Add-Ons"
+    case pairing = "Pairing"
 
     var icon: String {
         switch self {
         case .appearance: return "paintbrush"
         case .systemPrompt: return "text.bubble"
         case .addOns: return "puzzlepiece.extension"
+        case .pairing: return "qrcode"
         }
     }
 }
@@ -32,6 +34,7 @@ struct SettingsConfiguratorView: View {
                 case .appearance: appearanceTab
                 case .systemPrompt: systemPromptTab
                 case .addOns: AddOnsSettingsView()
+                case .pairing: PairingQRView()
                 }
             }
             Divider()

@@ -254,8 +254,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSBonjourServices = _tinker._tcp;
-				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Tink needs local network access to connect to Tinker running on your Mac.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Tink uses the camera to scan QR codes for pairing with Tinker.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -300,8 +299,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSBonjourServices = _tinker._tcp;
-				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Tink needs local network access to connect to Tinker running on your Mac.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Tink uses the camera to scan QR codes for pairing with Tinker.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;

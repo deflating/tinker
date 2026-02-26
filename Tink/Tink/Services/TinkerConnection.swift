@@ -4,15 +4,22 @@ import Observation
 import os.log
 import Security
 
-// MARK: - Discovered Host
+// MARK: - Models
 
 struct DiscoveredHost: Identifiable, Hashable {
-    let id: String  // Bonjour instance name
+    let id: String
     let name: String
     let endpoint: NWEndpoint
 
     func hash(into hasher: inout Hasher) { hasher.combine(id) }
     static func == (lhs: DiscoveredHost, rhs: DiscoveredHost) -> Bool { lhs.id == rhs.id }
+}
+
+struct SavedHost: Identifiable, Codable, Hashable {
+    var id: String { "\(host):\(port)" }
+    let name: String
+    let host: String
+    let port: UInt16
 }
 
 // MARK: - Connection
@@ -28,9 +35,8 @@ final class TinkerConnection {
         case error(String)
     }
 
-    // Discovery
-    var discoveredHosts: [DiscoveredHost] = []
-    var isSearching = false
+    // Saved hosts
+    var savedHosts: [SavedHost] = []
 
     // Connection
     var state: ConnectionState = .disconnected
@@ -44,65 +50,27 @@ final class TinkerConnection {
     var gitBranch: String?
 
     private let logger = Logger(subsystem: "app.tinker.tink", category: "TinkerConnection")
-    private var browser: NWBrowser?
     private var connection: NWConnection?
     private var authToken: String?
 
     init() {
         loadToken()
-    }
-
-    // MARK: - Discovery
-
-    func startSearching() {
-        guard !isSearching else { return }
-        isSearching = true
-        discoveredHosts = []
-
-        let params = NWParameters()
-        params.includePeerToPeer = true
-
-        browser = NWBrowser(for: .bonjour(type: "_tinker._tcp", domain: nil), using: params)
-
-        browser?.browseResultsChangedHandler = { [weak self] results, _ in
-            Task { @MainActor in
-                guard let self else { return }
-                self.discoveredHosts = results.compactMap { result in
-                    guard case .service(let name, _, _, _) = result.endpoint else { return nil }
-                    return DiscoveredHost(id: name, name: name, endpoint: result.endpoint)
-                }
-            }
-        }
-
-        browser?.stateUpdateHandler = { [weak self] newState in
-            Task { @MainActor in
-                if case .failed(let error) = newState {
-                    self?.logger.warning("Browse failed: \(error.localizedDescription)")
-                }
-            }
-        }
-
-        browser?.start(queue: .main)
-    }
-
-    func stopSearching() {
-        browser?.cancel()
-        browser = nil
-        isSearching = false
+        loadSavedHosts()
     }
 
     // MARK: - Connect / Disconnect
 
-    func connect(to host: DiscoveredHost) {
-        stopSearching()
-        connectedHost = host
+    func connect(host: String, port: UInt16, name: String? = nil) {
+        let displayName = name ?? host
+        let endpoint = NWEndpoint.hostPort(host: .init(host), port: .init(rawValue: port)!)
+        connectedHost = DiscoveredHost(id: "\(host):\(port)", name: displayName, endpoint: endpoint)
         state = .connecting
 
         let params = NWParameters.tcp
         let wsOptions = NWProtocolWebSocket.Options()
         params.defaultProtocolStack.applicationProtocols.insert(wsOptions, at: 0)
 
-        let nwConnection = NWConnection(to: host.endpoint, using: params)
+        let nwConnection = NWConnection(to: endpoint, using: params)
         self.connection = nwConnection
 
         nwConnection.stateUpdateHandler = { [weak self] newState in
@@ -110,7 +78,7 @@ final class TinkerConnection {
                 guard let self else { return }
                 switch newState {
                 case .ready:
-                    self.logger.info("Connected to \(host.name)")
+                    self.logger.info("Connected to \(displayName)")
                     self.authenticate()
                 case .failed(let error):
                     self.logger.error("Connection failed: \(error.localizedDescription)")
@@ -248,6 +216,32 @@ final class TinkerConnection {
         }
     }
 
+    // MARK: - Saved Hosts
+
+    func saveHost(_ host: SavedHost) {
+        if !savedHosts.contains(where: { $0.id == host.id }) {
+            savedHosts.append(host)
+            persistSavedHosts()
+        }
+    }
+
+    func removeSavedHost(_ host: SavedHost) {
+        savedHosts.removeAll { $0.id == host.id }
+        persistSavedHosts()
+    }
+
+    private func loadSavedHosts() {
+        guard let data = UserDefaults.standard.data(forKey: "savedHosts"),
+              let hosts = try? JSONDecoder().decode([SavedHost].self, from: data) else { return }
+        savedHosts = hosts
+    }
+
+    private func persistSavedHosts() {
+        if let data = try? JSONEncoder().encode(savedHosts) {
+            UserDefaults.standard.set(data, forKey: "savedHosts")
+        }
+    }
+
     // MARK: - Helpers
 
     private func sendJSON(_ dict: [String: Any]) {
@@ -267,6 +261,23 @@ final class TinkerConnection {
 
     // MARK: - Keychain
 
+    func setToken(_ token: String) {
+        authToken = token
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: "app.tinker.session-auth",
+            kSecAttrAccount as String: "session-token"
+        ]
+        SecItemDelete(query as CFDictionary)
+        var addQuery = query
+        addQuery[kSecValueData as String] = token.data(using: .utf8)!
+        addQuery[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlock
+        let status = SecItemAdd(addQuery as CFDictionary, nil)
+        if status != errSecSuccess {
+            logger.warning("Failed to save token to keychain: \(status)")
+        }
+    }
+
     private func loadToken() {
         authToken = readKeychainToken(synchronizable: true)
 
@@ -275,19 +286,34 @@ final class TinkerConnection {
         }
 
         if authToken == nil {
-            authToken = readTokenFromFile()
+            authToken = readTokenFromiCloud()
         }
 
         if authToken == nil {
-            logger.warning("No auth token found in keychain or file")
+            authToken = readTokenFromFile()
         }
+
+        if let token = authToken {
+            logger.info("Auth token loaded (\(token.prefix(8))...)")
+        } else {
+            logger.warning("No auth token found")
+        }
+    }
+
+    private func readTokenFromiCloud() -> String? {
+        guard let containerURL = FileManager.default.url(forUbiquityContainerIdentifier: "iCloud.app.tinker") else {
+            return nil
+        }
+        let tokenURL = containerURL.appendingPathComponent("Documents/.auth-token")
+        return try? String(contentsOf: tokenURL, encoding: .utf8).trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     private func readKeychainToken(synchronizable: Bool) -> String? {
         var query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: "com.familiar.session-auth",
+            kSecAttrService as String: "app.tinker.session-auth",
             kSecAttrAccount as String: "session-token",
+
             kSecReturnData as String: kCFBooleanTrue!,
             kSecMatchLimit as String: kSecMatchLimitOne
         ]

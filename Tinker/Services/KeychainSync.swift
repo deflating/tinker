@@ -8,7 +8,7 @@ final class KeychainSync {
     static let shared = KeychainSync()
 
     private let logger = Logger(subsystem: "app.tinker", category: "KeychainSync")
-    private let service = "com.familiar.session-auth"
+    private let service = "app.tinker.session-auth"
     private let account = "session-token"
 
     private init() {}
@@ -45,7 +45,7 @@ final class KeychainSync {
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
             kSecAttrAccount as String: account,
-            kSecAttrSynchronizable as String: kCFBooleanTrue!
+            kSecAttrSynchronizable as String: kCFBooleanTrue!,
         ]
     }
 
