@@ -32,7 +32,6 @@
 		A100000205 /* CommandPaletteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000205 /* CommandPaletteView.swift */; };
 		A100000207 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A200000207 /* Assets.xcassets */; };
 		A100000208 /* TranscriptLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000208 /* TranscriptLogger.swift */; };
-		A100000212 /* salience-labels.json in Resources */ = {isa = PBXBuildFile; fileRef = A200000212 /* salience-labels.json */; };
 		A100000213 /* SpotlightLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000213 /* SpotlightLauncher.swift */; };
 		A100000214 /* MCPExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000214 /* MCPExtension.swift */; };
 		A100000215 /* ExtensionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000215 /* ExtensionsView.swift */; };
@@ -89,7 +88,6 @@
 		A200000205 /* CommandPaletteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandPaletteView.swift; sourceTree = "<group>"; };
 		A200000207 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A200000208 /* TranscriptLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptLogger.swift; sourceTree = "<group>"; };
-		A200000212 /* salience-labels.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "salience-labels.json"; sourceTree = "<group>"; };
 		A200000213 /* SpotlightLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotlightLauncher.swift; sourceTree = "<group>"; };
 		A200000214 /* MCPExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCPExtension.swift; sourceTree = "<group>"; };
 		A200000215 /* ExtensionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtensionsView.swift; sourceTree = "<group>"; };
@@ -203,7 +201,6 @@
 			isa = PBXGroup;
 			children = (
 				A20000015 /* familiar-cat.png */,
-				A200000212 /* salience-labels.json */,
 				A5000000I /* Fonts */,
 			);
 			path = Resources;
@@ -341,7 +338,6 @@
 				A10000011 /* Sen-ExtraBold.ttf in Resources */,
 				A10000015 /* familiar-cat.png in Resources */,
 				A100000207 /* Assets.xcassets in Resources */,
-				A100000212 /* salience-labels.json in Resources */,
 				A100000506 /* FamiliarConfigurator.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
