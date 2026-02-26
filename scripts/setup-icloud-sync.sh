@@ -4,7 +4,7 @@
 
 set -e
 
-ICLOUD="$HOME/Library/Mobile Documents/iCloud~app~familiar/Documents"
+ICLOUD="$HOME/Library/Mobile Documents/iCloud~app~tinker/Documents"
 
 if [ ! -d "$ICLOUD" ]; then
     echo "iCloud container not found. Launch Tinker first, then re-run this script."

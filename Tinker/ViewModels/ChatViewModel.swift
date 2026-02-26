@@ -331,6 +331,7 @@ class ChatViewModel {
             isComplete: false
         ))
 
+
         commandRunner.run(
             prompt: trimmed,
             sessionId: currentSessionId,

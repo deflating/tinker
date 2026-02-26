@@ -1,13 +1,13 @@
 import Foundation
 import os
 
-private let log = Logger(subsystem: "app.familiar", category: "iCloud")
+private let log = Logger(subsystem: "app.tinker", category: "iCloud")
 
 final class iCloudSyncService {
     static let shared = iCloudSyncService()
 
     private let fm = FileManager.default
-    private let containerID = "iCloud.app.familiar"
+    private let containerID = "iCloud.app.tinker"
 
     struct SyncMapping {
         let localPath: String
